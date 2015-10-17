@@ -2,18 +2,20 @@
 
 namespace Marando\JPLephem\DE;
 
-class JPLSun extends \Marando\JPLephem\DE\JPLBody {
+use \Marando\JPLephem\DE\JPLBody;
+
+class JPLEarthBary extends JPLBody {
 
   public function getIdDE() {
-    return 11;
+    return 3;
   }
 
   public function getIdNAIF() {
-    return 10;
+    return 3;
   }
 
   public function getName() {
-    return 'Sun';
+    return 'Earth-Moon barycenter';
   }
 
 }

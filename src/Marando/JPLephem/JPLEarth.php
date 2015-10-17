@@ -1,8 +1,19 @@
 <?php
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+namespace Marando\JPLephem\DE;
 
+class Earth extends \Marando\JPLephem\DE\JPLBody {
+
+  public function getIdDE() {
+    return null;
+  }
+
+  public function getIdNAIF() {
+    return 399;
+  }
+
+  public function getName() {
+    return 'Earth';
+  }
+
+}

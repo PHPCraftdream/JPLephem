@@ -131,10 +131,7 @@ class DEheader {
     while ($i < $count) {
       $file->next();
       foreach ($file->splitCurrent(' ') as $value) {
-        $components = explode('D', $value);
-        $value      = floatval($components[0]) * 10 ** intval($components[1]);
-
-        $coeffValues[] = $value;
+        $coeffValues[] = static::evalNumber($value);
         $i++;
       }
     }
@@ -178,6 +175,16 @@ class DEheader {
     $this->coeffStart = $coeffStart;
     $this->coeffCount = $coeffCount;
     $this->coeffSets  = $coeffSets;
+  }
+
+  /**
+   * Evaluates a number of the format +0.143951838384999992D-05
+   * @param string $raw
+   * @return float
+   */
+  protected static function evalNumber($raw) {
+    $array = explode('D', $raw);
+    return floatval($array[0]) * 10 ** intval($array[1]);
   }
 
 }

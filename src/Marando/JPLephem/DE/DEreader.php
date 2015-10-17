@@ -3,10 +3,14 @@
 namespace Marando\JPLephem\DE;
 
 use \Marando\JPLephem\DE\DEheader;
+use \Marando\JPLephem\DE\FileReader;
+use \Marando\JPLephem\Results\CartesianVector;
+use \Marando\Units\Distance;
+use \Marando\Units\Velocity;
 
 /**
- * @property float  $jde    JDE (Julian Ephemeris Day) of this instance
- * @property DE     $de     JPL DE version
+ * @property float  $jde      JDE (Julian Ephemeris Day) of this instance
+ * @property DE     $de       JPL DE version
  * @property DEheader $header JPL DE header
  */
 class DEreader {
@@ -63,7 +67,7 @@ class DEreader {
 
   /**
    * The ephemeris file pertaining to the JD specified during instantiation
-   * @var SplFileObject
+   * @var FileReader
    */
   protected $file;
 
@@ -84,6 +88,139 @@ class DEreader {
   //----------------------------------------------------------------------------
   // Functions
   //----------------------------------------------------------------------------
+
+  /**
+   *
+   * @param type $planet
+   * @param type $components
+   * @param type $velocity
+   * @return CartesianVector
+   */
+  public function interpPlanet($planet, $components = 3, $velocity = true) {
+    $raw = $this->interp($planet, $components, $velocity);
+
+    $vector     = new CartesianVector();
+    $vector->x  = Distance::au($raw[0]);
+    $vector->y  = Distance::au($raw[1]);
+    $vector->z  = Distance::au($raw[2]);
+    $vector->vx = Velocity::aud($raw[3]);
+    $vector->vy = Velocity::aud($raw[4]);
+    $vector->vz = Velocity::aud($raw[5]);
+
+    return $vector;
+  }
+
+  /**
+   *
+   *
+   *
+   * Earth Mean Equator and Equinox of Reference Epoch
+   * @param type $element
+   * @param type $components
+   * @param type $velocity
+   * @return array
+   */
+  public function interp($element, $components = 3, $velocity = false) {
+    $p = $element - 1;  // Convert 1-base to 0-base
+
+    $jd0 = $this->chunk[0];
+    $jd1 = $this->chunk[1];
+
+    // Coefficient properties
+    $pointer  = $this->header->coeffStart[$p] - 1;
+    $nCoeff   = $this->header->coeffCount[$p];
+    $nSubIntv = $this->header->coeffSets[$p];
+
+
+    $tint = ($this->jde - $jd0) / $this->header->blockSize;
+    $ieph = floor($tint);
+
+    $tint = ($tint - $ieph) * $nSubIntv;
+    $nseg = floor($tint);
+
+    $tseg = 2 * ($tint - $nseg) - 1;
+
+    $pointer += $nseg * $nCoeff * $components;
+
+
+    $coeff = [];
+    $i     = $pointer;
+    for ($j = 1; $j <= $components; $j++) {
+      for ($k = 1; $k <= $nCoeff; $k++) {
+        $coeff[$j][$k] = $this->chunk[$i];
+        $i++;
+      }
+    }
+
+
+
+    //$chebTime = 2 * $tseg;
+    $chebTime = $tseg;
+
+    $posPoly = [];
+
+    $posPoly[1] = 1;
+    $posPoly[2] = $chebTime;
+
+    for ($j = 3; $j <= $nCoeff; $j++)
+      $posPoly[$j] = 2 * $chebTime * $posPoly[$j - 1] - $posPoly[$j - 2];
+
+
+    $ephem_r = [];
+    for ($j = 1; $j <= $components; $j++) {
+      $ephem_r[$j] = 0;
+      for ($k = 1; $k < $nCoeff; $k++) {
+        $ephem_r[$j] = $ephem_r[$j] + $coeff[$j][$k] * $posPoly[$k];
+      }
+
+      //convert to AU
+      if ($element <= 11)
+        $ephem_r[$j] = $ephem_r[$j] / $this->header->const->AU;
+
+      echo 1;
+    }
+
+
+    if ($velocity) {
+      $ephem_v = [];
+      $vPoly   = [];
+
+      $vPoly[1] = 0;
+      $vPoly[2] = 1;
+      $vPoly[3] = 4 * $chebTime;
+
+      for ($j = 4; $j <= $nCoeff; $j++)
+        $vPoly[$j] = 2 * $chebTime * $vPoly[$j - 1] +
+                2 * $posPoly[$j - 1] -
+                $vPoly[$j - 2];
+
+      for ($j = 1; $j <= 3; $j++) {
+        $ephem_v[$j] = 0;
+
+        for ($k = 1; $k <= $nCoeff; $k++) {
+          $ephem_v[$j] = $ephem_v[$j] + $coeff[$j][$k] * $vPoly[$k];
+          $v           = "$ephem_v[$j] + {$coeff[$j][$k]} * $vPoly[$k]";
+        }
+
+        $ephem_v[$j] = $ephem_v[$j] * (2.0 * $nSubIntv / $this->header->blockSize);
+
+        // AU/day
+        if ($element <= 11)
+          $ephem_v[$j] = $ephem_v[$j] / $this->header->const->AU;
+      }
+    }
+
+    $ephem   = [];
+    foreach ($ephem_r as $r)
+      $ephem[] = $r;
+
+    if ($velocity)
+      foreach ($ephem_v as $v)
+        $ephem[] = $v;
+
+    return $ephem;
+  }
+
   // // // Protected
 
   /**
@@ -165,7 +302,7 @@ MSG;
     // Check if DE path exists and files have been downloaded
     // TODO: In the future this should compare the actual files...
     if (file_exists($this->path))
-      if (count(preg_grep("/\.{$this->de}/", scandir($this->path))) > 3)
+      if (count(preg_grep("/\.{$this->de->version}/", scandir($this->path))) > 3)
         return true;
 
     return false;
@@ -206,7 +343,7 @@ MSG;
     }
 
     $file = $files[$i - 1];
-    return new \SplFileObject("{$this->path}/{$file}");
+    return new FileReader("{$this->path}/{$file}");
   }
 
   protected function selectHeaderFile() {
@@ -229,6 +366,65 @@ No header file was found in the directory "{$path}" which usually happens if the
 DE download is incomplete. Please check the directory and try again.
 ERROR;
     throw new Exception('No header file.');
+  }
+
+  /**
+   * Finds the year of a julian day number
+   * @param float $jd
+   * @return int
+   */
+  protected static function jdToYear($jd) {
+    return floor(2000 + floor(($jd - 2451544.500000) / 36525));
+  }
+
+  /**
+   * Evaluates a number of the format +0.143951838384999992D-05
+   * @param string $raw
+   * @return float
+   */
+  protected static function evalNumber($raw) {
+    $array = explode('D', $raw);
+    return floatval($array[0]) * 10 ** intval($array[1]);
+  }
+
+  protected function loadChunk() {
+    $blockSize = $this->header->blockSize;
+    $nCoeff    = $this->header->nCoeff;
+    $coeffs    = [];
+
+    // Seek first line and evaluate start JDE of file
+    $this->file->seek(1);
+    $jde0 = static::evalNumber($this->file->splitCurrent(' ')[0]);
+
+    // Calculate the chunk number and starting line
+    $chunkNum   = floor(($this->jde - $jde0) / $blockSize);
+    $chunkStart = 1 + ($chunkNum * (2 + floor($nCoeff / 3)) );
+
+    // Get start byte offset of chunk
+    $this->file->seek($chunkStart - 1);
+    $byte1 = $this->file->ftell();
+
+    // Get end byte offset of chunk
+    $this->file->seek($chunkStart + floor($nCoeff / 3));
+    $byteN = $this->file->ftell();
+
+    // Load entire chunk using byte offsets (file_get_contents is fastest way)
+    $fPath = $this->file->getRealPath();
+    $chunk = file_get_contents($fPath, null, null, $byte1, $byteN - $byte1);
+
+    // Explode chunk to array and parse coefficients
+    $chunk = explode("\n", $chunk);
+    for ($i = 0; $i <= floor($nCoeff / 3); $i++) {
+      foreach (static::parseLine($chunk[$i]) as $coeff)
+        $coeffs[] = static::evalNumber(trim($coeff));
+    }
+
+    // Return coefficients
+    return $coeffs;
+  }
+
+  protected static function parseLine($line) {
+    return array_values(array_filter(explode(' ', trim($line))));
   }
 
 }

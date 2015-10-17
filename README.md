@@ -1,5 +1,5 @@
 # JPLephem
-JPLephem is a PHP package that can read ASCII Jet Propulsion Laboratory Development Ephemeris (JPL DE) files in order to calculate the circumstances describing the following items:
+JPLephem is a PHP package that can read ASCII based Jet Propulsion Laboratory Development Ephemeris (JPL DE) files in order to calculate the circumstances describing the following items:
 
   1. Mercury
   2. Venus  

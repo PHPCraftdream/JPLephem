@@ -25,7 +25,7 @@ VY: +1.380701948006297E-2 AU/d
 VZ: +6.316813923448646E-3 AU/d
 ```
 
-#### Relative Positions
+### Relative Positions
 Relative positions between any two bodies can be found as such:
 ```php
 Earth::at(2451545.5)->position(new Mercury);
@@ -34,7 +34,7 @@ Pluto::at(2451545.5)->position(new Moon));
 ```
 
 
-#### The `CartesianVector` Type
+### The `CartesianVector` Type
 All position results are returned using the `CartesianVector` type, which stores rectangular position and velocity components.
 
 ```php
@@ -76,10 +76,10 @@ echo $saturn->x->km;  // get x-coord in kilometers  Output: 985849133.15246
 The underlying components of the `CartesianVector` type are comprised of the `Distance` and `Velocity` types from the Units package documented further [here](https://github.com/marando/Units).
 
 
-#### About DE Versions
+### About DE Versions
 Because of its small size, `DE421` is the default DE version used within this package. The first time you run the package within any installation the neccesary files will be automatically downloaded. For larger DE versions this may take quite some time.
 
-##### Specifying the DE Version
+### Specifying the DE Version
 
 If you wish you can specify an alternate DE version like this:
 ```php
@@ -94,7 +94,7 @@ $de405 = Earth::at(2451545.5)->with('DE405')->position(new Pluto);
 
 
 
-#### Classes for the Planets, Sun and Moon
+### Classes for the Planets, Sun and Moon
 Here is a summary of each class provided by this package as well as any additional abilities each class provides:
 
 Class       | Description             | Provides

@@ -13,6 +13,7 @@ Usage is fairly straightforward. Each planetary object as well as the Sun, Moon 
 
 You can find the Solar System barycentric position of any body like this
 ```php
+// Find position of mars at JDE 2451545.5 as seen from the Solar System barycenter
 echo SolarBary::at(2451545.5)->position(new Mars);
 
 Output:

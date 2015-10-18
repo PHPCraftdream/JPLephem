@@ -42,6 +42,10 @@ Because of its small size, `DE421` is the default DE version used within this pa
 
 If you wish you can specify an alternate DE version like this:
 ```php
+$de405 = Earth::at(2451545.5)->with('DE405');
+```
+…and when doing this you can still chain other methods by the way:
+```php
 $de405 = Earth::at(2451545.5)->with('DE405')->position(new Pluto);
 ```
 
@@ -63,15 +67,16 @@ VY: -1.951149481528082E+5 km/d
 VZ: -4.842830777990772E+5 km/d
 ```
 
-The underlying elements of 
+The underlying components of the `CartesianVector` type are comprised of the `Distance` and `Velocity` types from [this package](https://github.com/marando/Units).
 
 
 
 
-Classes for the Planets, Sun and Moon
--------
+#### Classes for the Planets, Sun and Moon
+Here is a summary of each class provided by this package as well as any additional abilities each class provides:
+
 Class       | Description             | Provides
-------------|-------------------------|------------
+------------|-------------------------|---------------------------------
 `SolarBary` | Solar System barycenter | `ttTDB()`
 `Sun`       | Sun                     |
 `Mercury`   | Mercury                 |
@@ -79,11 +84,11 @@ Class       | Description             | Provides
 `EarthBary` | Earth-Moon barycenter   |
 `Earth`     | Earth                   | `nutation()`
 `Moon`      | Moon                    | `libration()`, `mantleVelocity()`
-`Mars`      | Mars
-`Jupiter`   | Jupiter
-`Saturn`    | Saturn
-`Uranus`    | Uranus
-`Neptune`   | Neptune
-`Pluto`     | Pluto
+`Mars`      | Mars                    |
+`Jupiter`   | Jupiter                 |
+`Saturn`    | Saturn                  |
+`Uranus`    | Uranus                  |
+`Neptune`   | Neptune                 |
+`Pluto`     | Pluto                   |
 
 

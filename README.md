@@ -51,7 +51,7 @@ $vector->vy;
 $vector->vz;
 ```
 
-The object has a string value as seen in the above examples, which can easily be change across units as shown:
+The object has a string value as seen below, and can also easily be converted across units as shown:
 ```php
 echo Earth::at(2451545.5)->position(new Mercury)->setUnit('km km/d');
 

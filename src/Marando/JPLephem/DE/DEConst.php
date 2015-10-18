@@ -3,8 +3,10 @@
 namespace Marando\JPLephem\DE;
 
 /**
- * @property float $DENUM
- * @property float $LENUM
+ * Represents all constants found within DE headers
+ *
+ * @property float $DENUM  DE version number
+ * @property float $LENUM  Lunare DE version number
  * @property float $TDATEF
  * @property float $TDATEB
  * @property float $JDEPOC
@@ -12,8 +14,8 @@ namespace Marando\JPLephem\DE;
  * @property float $CLIGHT
  * @property float $BETA
  * @property float $GAMMA
- * @property float $AU
- * @property float $EMRAT
+ * @property float $AU     Definition of the astronomical unit in kilometers
+ * @property float $EMRAT  Earth to Moon mass ratio
  * @property float $GM1
  * @property float $GM2
  * @property float $GMB
@@ -575,13 +577,18 @@ namespace Marando\JPLephem\DE;
  * @property float $MA1107
  * @property float $MA1171
  * @property float $MA1467
+ *
+ * @author Ashley Marando <a.marando@.me.com>
  */
-class DEconst {
+class DEConst {
+  //----------------------------------------------------------------------------
+  // Properties
+  //----------------------------------------------------------------------------
 
-  public function count() {
-    return count($this->properties);
-  }
-
+  /**
+   * Holds the public properties of this instance
+   * @var array
+   */
   protected $properties = [];
 
   public function __get($name) {
@@ -590,6 +597,18 @@ class DEconst {
 
   public function __set($name, $value) {
     $this->properties[$name] = $value;
+  }
+
+  //----------------------------------------------------------------------------
+  // Functions
+  //----------------------------------------------------------------------------
+
+  /**
+   * Gets the total number of constants stored within this instance
+   * @return int
+   */
+  public function count() {
+    return count($this->properties);
   }
 
 }

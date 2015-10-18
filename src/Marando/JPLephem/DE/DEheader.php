@@ -14,7 +14,7 @@ use \Exception;
  * @property int     $blockSize
  * @property int     $kSize
  * @property int     $nCoeff
- * @property DEconst $const
+ * @property DEConst $const
  * @property array   $coeffStart
  * @property array   $coeffCount
  * @property array   $coeffSets
@@ -137,7 +137,7 @@ class DEheader {
     }
 
     // Create a new constant instance and store each of the coefficients
-    $this->const                    = new DEconst();
+    $this->const                    = new DEConst();
     for ($i = 0; $i < count($coeffNames); $i++)
       $this->const->{$coeffNames[$i]} = $coeffValues[$i];
   }

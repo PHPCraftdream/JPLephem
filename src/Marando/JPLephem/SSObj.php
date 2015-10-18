@@ -4,6 +4,7 @@ namespace Marando\JPLephem;
 
 use \Marando\JPLephem\DE\DE;
 use \Marando\JPLephem\DE\DEreader;
+use \Marando\JPLephem\Results\CartesianVector;
 
 /**
  * @property float  $id
@@ -64,8 +65,8 @@ abstract class SSObj {
   }
 
   public function position(SSObj $body) {
-    $center = $this->interpPlanet($this->id);
-    $target = $this->interpPlanet($body->id);
+    $center = $this->interpPlanet($this);
+    $target = $this->interpPlanet($body);
 
     // target (as viewed from center) = XYZ[target] - XYZ[center]
     return $target->subtract($center);
@@ -109,8 +110,8 @@ abstract class SSObj {
     if ($planet instanceof Earth) {
       // Earth-Moon mass ratio & barycenter; geocentric moon position
       $emrat = $this->reader->header->const->EMRAT;
-      $emb   = $this->reader->interpPlanet(EarthBary, 3, true);
-      $moon  = $this->reader->interpPlanet(Moon, 3, true);
+      $emb   = $this->reader->interpPlanet((new EarthBary)->id, 3, true);
+      $moon  = $this->reader->interpPlanet((new Moon)->id, 3, true);
 
       // Position & velocity of Earth with respect to Earth-Moon Barycenter
       $x  = $emb->x->au - 1 / (1 + $emrat) * $moon->x->au;
@@ -126,8 +127,8 @@ abstract class SSObj {
     if ($planet instanceof Moon) {
       // Earth-Moon mass ratio & barycenter; geocentric moon position
       $emrat = $this->reader->header->const->EMRAT;
-      $emb   = $this->reader->interpPlanet(EarthBary, 3, true);
-      $moon  = $this->reader->interpPlanet(Moon, 3, true);
+      $emb   = $this->reader->interpPlanet((new EarthBary)->id, 3, true);
+      $moon  = $this->reader->interpPlanet((new Moon())->id, 3, true);
 
       // Position & velocity of Earth with respect to Earth-Moon Barycenter
       $x     = $emb->x->au - 1 / (1 + $emrat) * $moon->x->au;
@@ -142,7 +143,7 @@ abstract class SSObj {
       return $moon->add($earth);
     }
 
-    return $this->reader->interpPlanet($planet, 3, true);
+    return $this->reader->interpPlanet($planet->id, 3, true);
   }
 
   protected function loadReader() {

@@ -4,14 +4,14 @@ namespace Marando\JPLephem;
 
 use \Marando\JPLephem\SSObj;
 
-class SolarBary extends SSObj {
+class Moon extends SSObj {
 
   protected function getId() {
-    return 0;
+    return 10;
   }
 
   protected function getName() {
-    return 'Solar System barycenter';
+    return 'Moon';
   }
 
 }

@@ -7,33 +7,57 @@ use \Marando\JPLephem\DE\DEreader;
 use \Marando\JPLephem\Results\CartesianVector;
 
 /**
- * @property float  $id
- * @property string $name
+ * Represents a solar system object that is part of a JPL ephemeris
+ *
+ * @property float  $id   Ephemeris id of the object
+ * @property string $name Name of the object
  */
 abstract class SSObj {
-
-  //
+  //----------------------------------------------------------------------------
   // Constructors
-  //
+  //----------------------------------------------------------------------------
 
+  /**
+   * Creates a new instace at the specified jde
+   * @param float $jde
+   */
   public function __construct($jde = null) {
     $this->jde = $jde;
-    $this->de  = DE::DE421();
+    $this->de  = DE::DE421();  // Default DE
   }
 
   // // // Static
 
+  /**
+   * Creates a new instace at the specified jde
+   * @param float $jde
+   * @return static
+   */
   public static function at($jde) {
     return new static($jde);
   }
 
-  //
+  //----------------------------------------------------------------------------
   // Properties
-  //
+  //----------------------------------------------------------------------------
 
-  private $de     = null;
+  /**
+   * DE version used in this instance
+   * @var DE
+   */
+  private $de = null;
+
+  /**
+   * DE reader used in this instance
+   * @var DEreader
+   */
   private $reader = null;
-  private $jde    = null;
+
+  /**
+   * JDE of this instance
+   * @var float
+   */
+  private $jde = null;
 
   /**
    * Holds the public properties of this instance
@@ -55,20 +79,36 @@ abstract class SSObj {
     $this->properties[$name] = $value;
   }
 
-  //
+  //----------------------------------------------------------------------------
   // Functions
-  //
+  //----------------------------------------------------------------------------
 
-  public function with(DE $de) {
-    $this->de = DE::parse($de);
+  /**
+   * Specifies the DE version to use for this instance
+   * @param DE|string $de
+   * @return static
+   */
+  public function with($de = '421') {
+    if ($de instanceof DE)
+      $this->de = $de;
+    else
+      $this->de = DE::parse($de);
+
+    // Since the DE version has been specified, load the reader
     $this->loadReader();
+    return $this;
   }
 
+  /**
+   * Finds the position of a solar system body relative to this instance
+   * @param SSObj $body
+   * @return CartesianVector
+   */
   public function position(SSObj $body) {
     $center = $this->interpPlanet($this);
     $target = $this->interpPlanet($body);
 
-    // target (as viewed from center) = XYZ[target] - XYZ[center]
+    // Position = Target - Center
     return $target->subtract($center);
   }
 
@@ -76,39 +116,53 @@ abstract class SSObj {
   //}
   // // // Protected
 
+  /**
+   * Gets the JPL DE id of the body represented by this instance
+   */
   abstract protected function getId();
 
+  /**
+   * Gets the name of the body represented by this instance
+   */
   abstract protected function getName();
 
-  protected function interp($elem, $componets = 3, $velocity = false) {
+  /**
+   * Interpolates part of a DE ephemeris
+   *
+   * @param int $elem       The element number to interpolate
+   * @param int $components The number of components, ex. x/y/z = 3, ψ/ε = 2
+   * @param bool $velocity  True returns XYZ velocity components
+   *
+   * @return array
+   */
+  protected function interp($elem, $components = 3, $velocity = false) {
+    // If no reader has been set, load it
     if ($this->reader == null)
       $this->loadReader();
 
+    // Run the interpolation on the reader
     return $this->reader->interp($elem, $components, $velocity);
   }
 
   /**
-   * The intent of this function is to interpolate the solar system barycentric
-   * position and velocity of a planet. The solar system barycentric position of
-   * the Earth is calculated with respect to the solar system barycentric
-   * Earth-Moon Barycenter position. Similarly, the solar system barycentric
-   * position of the moon is calculateed with respect to the solar system
-   * barycentric position of the Earth.
+   * Calculates the solar system *barycentric* position of a planet, the sun or
+   * the moon
    *
-   * @param float $planet
+   * @param SSObj $planet
    * @return CartesianVector
    */
-  protected function interpPlanet($planet = Jupiter) {
+  protected function interpPlanet(SSObj $planet) {
+    // Load the reader if it has not been loaded yet
     if ($this->reader == null)
       $this->loadReader();
 
-
+    // If the object is the solar system bary center, return all zero
     if ($planet instanceof SolarBary)
       return CartesianVector::fromAU_AUd(0, 0, 0, 0, 0, 0);
 
-
+    // Barycentric Earth geocenter
     if ($planet instanceof Earth) {
-      // Earth-Moon mass ratio & barycenter; geocentric moon position
+      // Earth-Moon mass ratio, barycenter position and geocentric moon position
       $emrat = $this->reader->header->const->EMRAT;
       $emb   = $this->reader->interpPlanet((new EarthBary)->id, 3, true);
       $moon  = $this->reader->interpPlanet((new Moon)->id, 3, true);
@@ -124,6 +178,7 @@ abstract class SSObj {
       return CartesianVector::fromAU_AUd($x, $y, $z, $vx, $vy, $vz);
     }
 
+    // Barycentric Moon
     if ($planet instanceof Moon) {
       // Earth-Moon mass ratio & barycenter; geocentric moon position
       $emrat = $this->reader->header->const->EMRAT;
@@ -143,9 +198,11 @@ abstract class SSObj {
       return $moon->add($earth);
     }
 
+    // Find the barycentric position of the planet
     return $this->reader->interpPlanet($planet->id, 3, true);
   }
 
+  // Loads the reader relevant to this instance
   protected function loadReader() {
     $this->reader = new DEreader($this->jde, $this->de);
   }

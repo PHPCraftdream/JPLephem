@@ -14,6 +14,8 @@ use \Marando\Units\Velocity;
  * @property Velocity $vx
  * @property Velocity $vy
  * @property Velocity $vz
+ *
+ * @author Ashley Marando <a.marando@me.com>
  */
 class CartesianVector {
 
@@ -24,6 +26,16 @@ class CartesianVector {
   // Constructors
   //----------------------------------------------------------------------------
 
+  /**
+   * Creates a new CartesianVector from distance and velocity components
+   *
+   * @param Distance $x  x position component
+   * @param Distance $y  y position component
+   * @param Distance $z  z position component
+   * @param Velocity $vx x velocity component
+   * @param Velocity $vy y velocity component
+   * @param Velocity $vz z velocity component
+   */
   public function __construct(Distance $x = null, Distance $y = null,
           Distance $z = null, Velocity $vx = null, Velocity $vy = null,
           Velocity $vz = null) {
@@ -36,7 +48,21 @@ class CartesianVector {
     $this->vz = $vz;
   }
 
-  public static function fromAU_AUd($x, $y, $z, $vx, $vy, $vz) {
+  /**
+   * Creates a new CartesianVector from distance and velocity components assumed
+   * to be in astronomical units for distance and astronomical units per day for
+   * velocity
+   *
+   * @param float $x  x position component
+   * @param float $y  y position component
+   * @param float $z  z position component
+   * @param float $vx x velocity component
+   * @param float $vy y velocity component
+   * @param float $vz z velocity component
+   *
+   * @return static
+   */
+  public static function aud($x, $y, $z, $vx, $vy, $vz) {
     $x  = Distance::au($x);
     $y  = Distance::au($y);
     $z  = Distance::au($z);
@@ -47,7 +73,20 @@ class CartesianVector {
     return new static($x, $y, $z, $vx, $vy, $vz);
   }
 
-  public static function fromKm_Kmd($x, $y, $z, $vx, $vy, $vz) {
+  /**
+   * Creates a new CartesianVector from distance and velocity components assumed
+   * to be in kilometers for distance and kilometers per day for velocity
+   *
+   * @param float $x  x position component
+   * @param float $y  y position component
+   * @param float $z  z position component
+   * @param float $vx x velocity component
+   * @param float $vy y velocity component
+   * @param float $vz z velocity component
+   *
+   * @return static
+   */
+  public static function kmd($x, $y, $z, $vx, $vy, $vz) {
     $x  = Distance::km($x);
     $y  = Distance::km($y);
     $z  = Distance::km($z);
@@ -58,7 +97,20 @@ class CartesianVector {
     return new static($x, $y, $z, $vx, $vy, $vz);
   }
 
-  public static function fromKm_Kms($x, $y, $z, $vx, $vy, $vz) {
+  /**
+   * Creates a new CartesianVector from distance and velocity components assumed
+   * to be in kilometers for distance and kilometers per second for velocity
+   *
+   * @param float $x  x position component
+   * @param float $y  y position component
+   * @param float $z  z position component
+   * @param float $vx x velocity component
+   * @param float $vy y velocity component
+   * @param float $vz z velocity component
+   *
+   * @return static
+   */
+  public static function kms($x, $y, $z, $vx, $vy, $vz) {
     $x  = Distance::km($x);
     $y  = Distance::km($y);
     $z  = Distance::km($z);
@@ -91,34 +143,44 @@ class CartesianVector {
   // Functions
   //----------------------------------------------------------------------------
 
+  /**
+   * Adds another cartesian vector to this instance and returns a new one
+   * @param CartesianVector $b
+   * @return static
+   */
   public function add(CartesianVector $b) {
-    $x  = Distance::m($this->x->m + $b->x->m);
-    $y  = Distance::m($this->y->m + $b->y->m);
-    $z  = Distance::m($this->z->m + $b->z->m);
-    $vx = Velocity::ms($this->vx->ms + $b->vx->ms);
-    $vy = Velocity::ms($this->vy->ms + $b->vy->ms);
-    $vz = Velocity::ms($this->vz->ms + $b->vz->ms);
+    $x  = Distance::m($this->x->m + $b->x->m)->setUnit($this->unit);
+    $y  = Distance::m($this->y->m + $b->y->m)->setUnit($this->unit);
+    $z  = Distance::m($this->z->m + $b->z->m)->setUnit($this->unit);
+    $vx = Velocity::ms($this->vx->ms + $b->vx->ms)->setUnit($this->unit);
+    $vy = Velocity::ms($this->vy->ms + $b->vy->ms)->setUnit($this->unit);
+    $vz = Velocity::ms($this->vz->ms + $b->vz->ms)->setUnit($this->unit);
 
     return new static($x, $y, $z, $vx, $vy, $vz);
   }
 
+  /**
+   * Subtracts another cartesian vector from this instance and returns a new one
+   * @paramCartesianVector $b
+   * @return static
+   */
   public function subtract(CartesianVector $b) {
-    $x  = Distance::m($this->x->m - $b->x->m);
-    $y  = Distance::m($this->y->m - $b->y->m);
-    $z  = Distance::m($this->z->m - $b->z->m);
-    $vx = Velocity::ms($this->vx->ms - $b->vx->ms);
-    $vy = Velocity::ms($this->vy->ms - $b->vy->ms);
-    $vz = Velocity::ms($this->vz->ms - $b->vz->ms);
+    $x  = Distance::m($this->x->m - $b->x->m)->setUnit($this->unit);
+    $y  = Distance::m($this->y->m - $b->y->m)->setUnit($this->unit);
+    $z  = Distance::m($this->z->m - $b->z->m)->setUnit($this->unit);
+    $vx = Velocity::ms($this->vx->ms - $b->vx->ms)->setUnit($this->unit);
+    $vy = Velocity::ms($this->vy->ms - $b->vy->ms)->setUnit($this->unit);
+    $vz = Velocity::ms($this->vz->ms - $b->vz->ms)->setUnit($this->unit);
 
     return new static($x, $y, $z, $vx, $vy, $vz);
-  }
-
-  public function toArray() {
-    $array = [];
   }
 
   // // // Overrides
 
+  /**
+   * Represents this instance as a string
+   * @return string
+   */
   public function __toString() {
     $format = '%+0.15E';
 
@@ -130,7 +192,17 @@ class CartesianVector {
     $vz   = sprintf($format, $this->vz->aud);
     $unit = ['AU', 'AU/d'];
 
-    if (strtolower($this->unit) == 'km, km/s') {
+    if (strtolower($this->unit) == 'km km/d') {
+      $x    = sprintf($format, $this->x->km);
+      $y    = sprintf($format, $this->y->km);
+      $z    = sprintf($format, $this->z->km);
+      $vx   = sprintf($format, $this->vx->kmd);
+      $vy   = sprintf($format, $this->vy->kmd);
+      $vz   = sprintf($format, $this->vz->kmd);
+      $unit = ['km', 'km/d'];
+    }
+
+    if (strtolower($this->unit) == 'km km/s') {
       $x    = sprintf($format, $this->x->km);
       $y    = sprintf($format, $this->y->km);
       $z    = sprintf($format, $this->z->km);

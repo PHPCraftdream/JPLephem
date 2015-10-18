@@ -158,7 +158,7 @@ abstract class SSObj {
 
     // If the object is the solar system bary center, return all zero
     if ($planet instanceof SolarBary)
-      return CartesianVector::fromAU_AUd(0, 0, 0, 0, 0, 0);
+      return CartesianVector::aud(0, 0, 0, 0, 0, 0);
 
     // Barycentric Earth geocenter
     if ($planet instanceof Earth) {
@@ -175,7 +175,7 @@ abstract class SSObj {
       $vy = $emb->vy->aud - 1 / (1 + $emrat) * $moon->vy->aud;
       $vz = $emb->vz->aud - 1 / (1 + $emrat) * $moon->vz->aud;
 
-      return CartesianVector::fromAU_AUd($x, $y, $z, $vx, $vy, $vz);
+      return CartesianVector::aud($x, $y, $z, $vx, $vy, $vz);
     }
 
     // Barycentric Moon
@@ -192,7 +192,7 @@ abstract class SSObj {
       $vx    = $emb->vx->aud - 1 / (1 + $emrat) * $moon->vx->aud;
       $vy    = $emb->vy->aud - 1 / (1 + $emrat) * $moon->vy->aud;
       $vz    = $emb->vz->aud - 1 / (1 + $emrat) * $moon->vz->aud;
-      $earth = CartesianVector::fromAU_AUd($x, $y, $z, $vx, $vy, $vz);
+      $earth = CartesianVector::aud($x, $y, $z, $vx, $vy, $vz);
 
       // Find SSB centered moon position by adding earth to it's vectors
       return $moon->add($earth);

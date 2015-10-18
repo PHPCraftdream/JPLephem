@@ -2,7 +2,7 @@
 
 namespace Marando\JPLephem;
 
-use \Marando\JPLephem\DE\DE;
+use \Marando\JPLephem\DE\DEVer;
 use \Marando\JPLephem\DE\DEreader;
 use \Marando\JPLephem\Results\CartesianVector;
 
@@ -23,7 +23,7 @@ abstract class SSObj {
    */
   public function __construct($jde = null) {
     $this->jde = $jde;
-    $this->de  = DE::DE421();  // Default DE
+    $this->de  = DEVer::DE421();  // Default DE
   }
 
   // // // Static
@@ -43,7 +43,7 @@ abstract class SSObj {
 
   /**
    * DE version used in this instance
-   * @var DE
+   * @var DEVer
    */
   private $de = null;
 
@@ -85,14 +85,14 @@ abstract class SSObj {
 
   /**
    * Specifies the DE version to use for this instance
-   * @param DE|string $de
+   * @param DEVer|string $de
    * @return static
    */
   public function with($de = '421') {
-    if ($de instanceof DE)
+    if ($de instanceof DEVer)
       $this->de = $de;
     else
-      $this->de = DE::parse($de);
+      $this->de = DEVer::parse($de);
 
     // Since the DE version has been specified, load the reader
     $this->loadReader();

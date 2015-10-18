@@ -7,13 +7,13 @@ use \Marando\JPLephem\DE\FileReader;
 use \Marando\JPLephem\Results\CartesianVector;
 use \Marando\Units\Distance;
 use \Marando\Units\Velocity;
-use \Marando\JPLephem\DE\DE;
+use \Marando\JPLephem\DE\DEVer;
 
 /**
  * Reads JPL DE files and interpolates the positions provided by it
  *
  * @property float    $jde      JDE (Julian Ephemeris Day) of this instance
- * @property DE       $de       JPL DE version
+ * @property DEVer       $de       JPL DE version
  * @property DEheader $header JPL DE header
  */
 class DEreader {
@@ -49,12 +49,12 @@ class DEreader {
    * Creates a new DEreader instance for the specified jde and DE version
    *
    * @param float $jde
-   * @param DE    $de  The DE version to use
+   * @param DEVer    $de  The DE version to use
    */
-  public function __construct($jde, DE $de = null) {
+  public function __construct($jde, DEVer $de = null) {
     // Store the JDE and figure out which DE version to use
     $this->jde = $jde;
-    $this->de  = $de == null ? DE::parse(static::DE_DEFAULT) : $de;
+    $this->de  = $de == null ? DEVer::parse(static::DE_DEFAULT) : $de;
 
     // Find the DE storage path
     $this->path = $this->getStoragePath();

@@ -64,7 +64,7 @@ The underlying elements of
 
 
 
-Classes
+Classes for the Planets, Sun and Moon
 -------
 Class       | Description             | Provides
 ------------|-------------------------|------------

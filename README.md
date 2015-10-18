@@ -28,9 +28,9 @@ VZ: +6.316813923448646E-3 AU/d
 ### Relative Positions
 Relative positions between any two bodies can be found as such:
 ```php
-Earth::at(2451545.5)->position(new Mercury);
-Earth::at(2451545.5)->position(new Moon);
-Pluto::at(2451545.5)->position(new Moon));
+Earth::at(2451545.5)->position(new Mercury);  // Mercury as seen from Earth
+Earth::at(2451545.5)->position(new Moon);     // Earth's Moon as seen from Earth
+Pluto::at(2451545.5)->position(new Moon));    // Earth's Moon as seen from Pluto
 ```
 
 

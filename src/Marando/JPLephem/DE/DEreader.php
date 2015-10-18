@@ -7,30 +7,56 @@ use \Marando\JPLephem\DE\FileReader;
 use \Marando\JPLephem\Results\CartesianVector;
 use \Marando\Units\Distance;
 use \Marando\Units\Velocity;
+use \Marando\JPLephem\DE\DE;
 
 /**
- * @property float  $jde      JDE (Julian Ephemeris Day) of this instance
- * @property DE     $de       JPL DE version
+ * Reads JPL DE files and interpolates the positions provided by it
+ *
+ * @property float    $jde      JDE (Julian Ephemeris Day) of this instance
+ * @property DE       $de       JPL DE version
  * @property DEheader $header JPL DE header
  */
 class DEreader {
-
   //----------------------------------------------------------------------------
   // Constants
   //----------------------------------------------------------------------------
 
-  const PARTIAL_FLAG     = '.partial';
+  /**
+   * Flag to denote partial DE downloads
+   */
+  const PARTIAL_FLAG = '.partial';
+
+  /**
+   * JPL DE source url
+   */
   const DE_SOURCE_DOMAIN = 'ssd.jpl.nasa.gov';
-  const DE_SOURCE_PATH   = '//pub//eph/planets/ascii/';
-  const DE_DEFAULT       = 'DE421';
+
+  /**
+   * JPL DE source path
+   */
+  const DE_SOURCE_PATH = '//pub//eph/planets/ascii/';
+
+  /**
+   * Default DE to use, 421 is a good choice since it's small
+   */
+  const DE_DEFAULT = 'DE421';
 
   //----------------------------------------------------------------------------
   // Constructors
   //----------------------------------------------------------------------------
 
+  /**
+   * Creates a new DEreader instance for the specified jde and DE version
+   *
+   * @param float $jde
+   * @param DE    $de  The DE version to use
+   */
   public function __construct($jde, DE $de = null) {
-    $this->jde  = $jde;
-    $this->de   = $de == null ? DE::parse(static::DE_DEFAULT) : $de;
+    // Store the JDE and figure out which DE version to use
+    $this->jde = $jde;
+    $this->de  = $de == null ? DE::parse(static::DE_DEFAULT) : $de;
+
+    // Find the DE storage path
     $this->path = $this->getStoragePath();
 
     // Download the ephemeris data if it does not exist
@@ -90,22 +116,22 @@ class DEreader {
   //----------------------------------------------------------------------------
 
   /**
-   *
-   * @param type $planet
-   * @param type $components
-   * @param type $velocity
+   * Interpolates the position of a planet
+   * @param int $planet The id of the planet to interpolate
    * @return CartesianVector
    */
-  public function interpPlanet($planet, $components = 3, $velocity = true) {
-    $raw = $this->interp($planet, $components, $velocity);
+  public function interpPlanet($planet) {
+    $raw = $this->interp($planet, 3, true);
+
+    $auDef = Distance::km($this->header->const->AU);
 
     $vector     = new CartesianVector();
-    $vector->x  = Distance::au($raw[0]);
-    $vector->y  = Distance::au($raw[1]);
-    $vector->z  = Distance::au($raw[2]);
-    $vector->vx = Velocity::aud($raw[3]);
-    $vector->vy = Velocity::aud($raw[4]);
-    $vector->vz = Velocity::aud($raw[5]);
+    $vector->x  = Distance::au($raw[0], $auDef);
+    $vector->y  = Distance::au($raw[1], $auDef);
+    $vector->z  = Distance::au($raw[2], $auDef);
+    $vector->vx = Velocity::aud($raw[3], $auDef);
+    $vector->vy = Velocity::aud($raw[4], $auDef);
+    $vector->vz = Velocity::aud($raw[5], $auDef);
 
     return $vector;
   }
@@ -176,8 +202,6 @@ class DEreader {
       //convert to AU
       if ($element <= 11)
         $ephem_r[$j] = $ephem_r[$j] / $this->header->const->AU;
-
-      echo 1;
     }
 
 
@@ -219,6 +243,42 @@ class DEreader {
         $ephem[] = $v;
 
     return $ephem;
+  }
+
+  /**
+   *
+   * @return \Marando\JPLephem\DE\DEtest[]
+   * @throws Exception
+   */
+  public function testpo() {
+    $path = "{$this->path}/testpo.{$this->de->version}";
+    if (!file_exists($path))
+      throw new Exception('testpo file not found');
+
+    $file = new FileReader($path);
+
+    $values = [];
+    $line   = 8;
+    while ($file->valid()) {
+      $array = $file->splitLine($line, ' ');
+
+      if (count($array) == 7) {
+        $test          = new DEtest();
+        $test->denum   = $array[0];
+        $test->date    = $array[1];
+        $test->jde     = $array[2];
+        $test->target  = $array[3];
+        $test->center  = $array[4];
+        $test->element = $array[5];
+        $test->value   = $array[6];
+
+        $values[] = $test;
+      }
+
+      $line++;
+    }
+
+    return $values;
   }
 
   // // // Protected
@@ -414,7 +474,7 @@ ERROR;
 
     // Explode chunk to array and parse coefficients
     $chunk = explode("\n", $chunk);
-    for ($i = 0; $i <= floor($nCoeff / 3); $i++) {
+    for ($i = $chunkNum == 0 ? 1 : 0; $i <= floor($nCoeff / 3); $i++) {
       foreach (static::parseLine($chunk[$i]) as $coeff)
         $coeffs[] = static::evalNumber(trim($coeff));
     }

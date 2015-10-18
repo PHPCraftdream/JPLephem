@@ -13,6 +13,7 @@ Usage is fairly straightforward. Each planetary object as well as the Sun, Moon 
 
 You can find the Solar System barycentric position of any body like this
 ```php
+// Find position of mars at JDE 2451545.5 as seen from the Solar System barycenter
 echo SolarBary::at(2451545.5)->position(new Mars);
 
 Output:
@@ -28,9 +29,9 @@ VZ: +6.316813923448646E-3 AU/d
 ### Relative Positions
 Relative positions between any two bodies can be found as such:
 ```php
-Earth::at(2451545.5)->position(new Mercury);
-Earth::at(2451545.5)->position(new Moon);
-Pluto::at(2451545.5)->position(new Moon));
+Earth::at(2451545.5)->position(new Mercury);  // Mercury as seen from Earth
+Earth::at(2451545.5)->position(new Moon);     // Earth's Moon as seen from Earth
+Pluto::at(2451545.5)->position(new Moon));    // Earth's Moon as seen from Pluto
 ```
 
 
@@ -51,7 +52,7 @@ $vector->vy;
 $vector->vz;
 ```
 
-The object has a string value as seen below, and can also easily be converted across units as shown:
+The object has a string value as seen below, and can also easily be converted across the units `AU AU/d`, `km km/d` and `km km/s` as shown:
 ```php
 echo Earth::at(2451545.5)->position(new Mercury)->setUnit('km km/d');
 

@@ -9,9 +9,7 @@ Usage
 Usage is straightforward. Each planetary object as well as the Sun, Moon and Solar System barycenter has it's own object. A few of these objects have additional methods which are all described at the [bottom of this page](https://github.com/marando/JPLephem/blob/dev/README.md#classes-for-the-planets-sun-and-moon).
 
 
-#### Finding Positions
-
-##### Solar System Barycentric Positions
+#### Solar System Barycentric Positions
 
 You can find the Solar System barycentric position of any body like this
 ```php
@@ -27,7 +25,7 @@ VY: +1.380701948006297E-2 AU/d
 VZ: +6.316813923448646E-3 AU/d
 ```
 
-##### Relative Positions
+#### Relative Positions
 Relative positions between any two bodies can be found as such:
 ```php
 Earth::at(2451545.5)->position(new Mercury);

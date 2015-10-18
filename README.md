@@ -1,12 +1,12 @@
 JPLephem
 ========
-JPLephem is a PHP package capable of reading Jet Propulsion Laboratory Development Ephemeris (JPL DE) files in order to calculate the circumstances describing the the positions and velocities of the major planets, Sun and Earth's Moon. The package can also calculate the Earth's Nutations in longitude and obliquity according to the IAU 1980 model, Lunar mantle librations and angular velocity as well as the value of TT-TDB at the geocenter.
+JPLephem is a PHP package capable of reading Jet Propulsion Laboratory Development Ephemeris (JPL DE) files in order to calculate the circumstances describing the the positions and velocities of the major planets, Sun and Earth's Moon. This package can also calculate the Earth's Nutations in longitude and obliquity according to the IAU 1980 model, lunar mantle librations and angular velocity as well as the value of TT-TDB at the geocenter.
 
 
 Usage
 -----
 
-Usage is straightforward. Each planetary object as well as the Sun, Moon and Solar System barycenter has it's own object. A few of these objects have additional methods which are all described at the [bottom of this page](https://github.com/marando/JPLephem/blob/dev/README.md#classes-for-the-planets-sun-and-moon).
+Usage is straightforward. Each planetary object as well as the Sun, Moon and Solar System barycenter has it's own class. A few of these objects have additional methods which are tabulated at the [bottom of this page](https://github.com/marando/JPLephem/blob/dev/README.md#classes-for-the-planets-sun-and-moon).
 
 
 #### Solar System Barycentric Positions

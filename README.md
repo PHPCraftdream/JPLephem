@@ -1,13 +1,25 @@
 JPLephem
 ========
-JPLephem is a PHP package that can read ASCII format Jet Propulsion Laboratory Development Ephemeris (JPL DE) files in order to calculate the circumstances describing the the positions and velocities of the major planets, the Sun and Earth's Moon. It can also calculate the Earth's Nutations in longitude and obliquity according to the IAU 1980 model, Lunar mantle librations and angular velocity as well as the value of TT-TDB at the geocenter.
+JPLephem is a PHP package capable of reading Jet Propulsion Laboratory Development Ephemeris (JPL DE) files in order to calculate the circumstances describing the the positions and velocities of the major planets, Sun and Earth's Moon. The package can also calculate the Earth's Nutations in longitude and obliquity according to the IAU 1980 model, Lunar mantle librations and angular velocity as well as the value of TT-TDB at the geocenter.
 
 
 Usage
 -----
 
-#### Finding Relative Positions
-You can find the relative position and velocity between two bodies at a specified JDE (assumed to be converted to TDB) as shown below:
+Usage is straightforward as each planetary object (including the Sun and Moon) has it's own object. Auxilary properties are held within the relavant object and are described at the bottom of this page.
+
+
+#### Finding Positions
+
+##### Solar System Barycentric Positions
+
+You can find the position of any body relative to the Solar System barycenter for a given JDE like this:
+```php
+echo SolarBary::at(2451545.5)->position(new Mars);
+```
+
+##### Relative Positions
+Relative positions between two bodies can be found as such:
 ```php
 echo Earth::at(2451545.5)->position(new Mercury);
 
@@ -52,6 +64,16 @@ The underlying elements of
 
 
 
-
+Classes
+-------
+Class       | Description             | Provides
+------------|-------------------------|------------
+`SolarBary` | Solar System barycenter | `ttTDB()`
+`Sun`       | Sun                     |
+`Mercury`   | Mercury                 |
+`Venus`     | Venus                   |
+`EarthBary` | Earth-Moon barycenter   |
+`Earth`     | Earth                   | `nutation()`
+`Moon`      | Moon                    | `libration()`, `mantleVelocity()`
 
 

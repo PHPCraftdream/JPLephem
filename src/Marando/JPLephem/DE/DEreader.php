@@ -2,7 +2,7 @@
 
 namespace Marando\JPLephem\DE;
 
-use \Marando\JPLephem\DE\DEheader;
+use \Marando\JPLephem\DE\DEHeader;
 use \Marando\JPLephem\DE\FileReader;
 use \Marando\JPLephem\Results\CartesianVector;
 use \Marando\Units\Distance;
@@ -14,7 +14,7 @@ use \Marando\JPLephem\DE\DEVer;
  *
  * @property float    $jde      JDE (Julian Ephemeris Day) of this instance
  * @property DEVer       $de       JPL DE version
- * @property DEheader $header JPL DE header
+ * @property DEHeader $header JPL DE header
  */
 class DEreader {
   //----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ class DEreader {
       $this->download();
 
     // Get parsed DE header
-    $this->header = new DEheader($this->selectHeaderFile());
+    $this->header = new DEHeader($this->selectHeaderFile());
 
     // Check date requested
     $this->checkDate();

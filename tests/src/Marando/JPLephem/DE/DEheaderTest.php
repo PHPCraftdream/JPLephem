@@ -8,7 +8,7 @@ namespace Marando\JPLephem\DE;
 class DEheaderTest extends \PHPUnit_Framework_TestCase {
 
   /**
-   * @var DEheader
+   * @var DEHeader
    */
   protected $header;
 
@@ -17,7 +17,7 @@ class DEheaderTest extends \PHPUnit_Framework_TestCase {
    * This method is called before a test is executed.
    */
   protected function setUp() {
-    $this->header = new DEheader(__DIR__ . '/header.421');
+    $this->header = new DEHeader(__DIR__ . '/header.421');
   }
 
   /**

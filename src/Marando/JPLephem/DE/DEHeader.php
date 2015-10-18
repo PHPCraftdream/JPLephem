@@ -6,22 +6,22 @@ use \Marando\JPLephem\DE\FileReader;
 use \Exception;
 
 /**
- * Represents the header of a JPL DE ephemeris
+ * Represents the header of a JPL DE ephemeris release
  *
- * @property string  $description
- * @property float   $startEpoch
- * @property float   $finalEpoch
- * @property int     $blockSize
+ * @property string  $description Description of the DE
+ * @property float   $startEpoch  JDE of the starting epoch of the DE
+ * @property float   $finalEpoch  JDE of the final epoch of the DE
+ * @property int     $blockSize   The number of days covered by each block
  * @property int     $kSize
- * @property int     $nCoeff
- * @property DEConst $const
- * @property array   $coeffStart
- * @property array   $coeffCount
- * @property array   $coeffSets
+ * @property int     $nCoeff      Number of Chebyshev coefficients per block
+ * @property DEConst $const       All constants defined within the header
+ * @property array   $coeffStart  Start coefficient of each body
+ * @property array   $coeffCount  Number of coefficients per body
+ * @property array   $coeffSets   Number of coefficient sets per body
  *
  * @author Ashley Marando <a.marando@me.com>
  */
-class DEheader {
+class DEHeader {
   //----------------------------------------------------------------------------
   // Constructors
   //----------------------------------------------------------------------------

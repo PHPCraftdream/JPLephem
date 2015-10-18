@@ -33,23 +33,9 @@ Earth::at(2451545.5)->position(new Moon);
 Pluto::at(2451545.5)->position(new Moon));
 ```
 
-#### About DE Versions
-Because of its small size, `DE421` is the default DE version used within this package. The first time you run the package within an installation the neccesary files will automatically be downloaded. For larger DE versions this may take quite some time.
-
-##### Specifying the DE Version
-
-If you wish you can specify an alternate DE version like this:
-```php
-$de405 = Earth::at(2451545.5)->with('DE405');
-```
-…and when doing this you can still chain other methods by the way:
-```php
-$de405 = Earth::at(2451545.5)->with('DE405')->position(new Pluto);
-```
-
 
 #### The `CartesianVector` Type
-All ephemeris position results are returned using the `CartesianVector` type, which provides the rectangular position and velocity of an object.
+All position results are returned using the `CartesianVector` type, which provides the rectangular position and velocity components of the target object with respect to the given center.
 
 For string values, you can easily change between units as shown:
 ```php
@@ -65,7 +51,31 @@ VY: -1.951149481528082E+5 km/d
 VZ: -4.842830777990772E+5 km/d
 ```
 
-The underlying components of the `CartesianVector` type are comprised of the `Distance` and `Velocity` types from [this package](https://github.com/marando/Units).
+Or you can get the components of a position like such:
+```php
+$saturn = Earth::at(2451545.5)->position(new Saturn);
+
+echo $saturn->x->mi;  // get x-coord in miles       Output: 612578251.23309
+echo $saturn->x->km;  // get x-coord in kilometers  Output: 985849133.15246
+```
+
+The underlying components of the `CartesianVector` type are comprised of the `Distance` and `Velocity` types from the Units package documented further [here](https://github.com/marando/Units).
+
+
+#### About DE Versions
+Because of its small size, `DE421` is the default DE version used within this package. The first time you run the package within an installation the neccesary files will automatically be downloaded. For larger DE versions this may take quite some time.
+
+##### Specifying the DE Version
+
+If you wish you can specify an alternate DE version like this:
+```php
+$de405 = Earth::at(2451545.5)->with('DE405');
+```
+…and when doing this you can still chain other methods by the way:
+```php
+$de405 = Earth::at(2451545.5)->with('DE405')->position(new Pluto);
+```
+
 
 
 

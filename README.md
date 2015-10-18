@@ -77,7 +77,7 @@ The underlying components of the `CartesianVector` type are comprised of the `Di
 
 
 #### About DE Versions
-Because of its small size, `DE421` is the default DE version used within this package. The first time you run the package within an installation the neccesary files will automatically be downloaded. For larger DE versions this may take quite some time.
+Because of its small size, `DE421` is the default DE version used within this package. The first time you run the package within any installation the neccesary files will be automatically downloaded. For larger DE versions this may take quite some time.
 
 ##### Specifying the DE Version
 

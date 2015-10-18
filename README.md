@@ -35,7 +35,7 @@ Pluto::at(2451545.5)->position(new Moon));
 
 
 #### The `CartesianVector` Type
-All position results are returned using the `CartesianVector` type, which provides the rectangular position and velocity components of the target object with respect to the given center.
+All position results are returned using the `CartesianVector` type, which stores rectangular position and velocity components.
 
 ```php
 $vector = new CartesianVector();

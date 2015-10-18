@@ -6,7 +6,7 @@ JPLephem is a PHP package that is capable of reading Jet Propulsion Laboratory D
 Usage
 -----
 
-Usage is straightforward. Each planetary object as well as the Sun, Moon and Solar System barycenter has it's own class. A few of these objects have additional methods which are tabulated at the [bottom of this page](https://github.com/marando/JPLephem/blob/dev/README.md#classes-for-the-planets-sun-and-moon).
+Usage is straightforward. Each planetary object as well as the Sun, Moon and Solar System barycenter has it's own class which you then supply Julian ephemeris day (JDE) assumed to already be converted to Barycentric Dynamical Time (TDB). You then find the position by calling the `position()` method. This is all demonstrated below. Also, a few of these objects have additional methods which are tabulated at the [bottom of this page](https://github.com/marando/JPLephem/blob/dev/README.md#classes-for-the-planets-sun-and-moon).
 
 
 ### Solar System Barycentric Positions

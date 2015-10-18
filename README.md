@@ -16,37 +16,29 @@ Usage is straightforward. Each planetary object as well as the Sun, Moon and Sol
 You can find the Solar System barycentric position of any body like this
 ```php
 echo SolarBary::at(2451545.5)->position(new Mars);
+
+Output:
+
+ X: +1.383898803546533E+0 AU
+ Y: +5.657785101770087E-3 AU
+ Z: -3.472518577530034E-2 AU
+VX: +6.004787752641543E-4 AU/d
+VY: +1.380701948006297E-2 AU/d
+VZ: +6.316813923448646E-3 AU/d
 ```
 
 ##### Relative Positions
 Relative positions between any two bodies can be found as such:
 ```php
-echo Earth::at(2451545.5)->position(new Mercury);
-
-Output:
-
- X: +6.636772399398923E-2 AU
- Y: -1.288855445918994E+0 AU
- Z: -5.869394103679338E-1 AU
-VX: +3.872803747094754E-2 AU/d
-VY: -1.304262869784337E-3 AU/d
-VZ: -3.237232425388239E-3 AU/d
-
-echo Pluto::at(2451545.5)->position(new Moon());
-```
-```php
-Output:
-
- X: +9.686354371943214E+0 AU
- Y: +2.886341687324572E+1 AU
- Z: +6.137832988977082E+0 AU
-VX: -1.979400803010458E-2 AU/d
-VY: -2.251166213392976E-3 AU/d
-VZ: -2.128255330826657E-4 AU/d
+Earth::at(2451545.5)->position(new Mercury);
+Earth::at(2451545.5)->position(new Moon);
+Pluto::at(2451545.5)->position(new Moon));
 ```
 
 #### About DE Versions
-Because of its small size, `DE421` is the default DE version used within this package. The first time you run the package within an installation the neccesary files will automatically be downloaded.
+Because of its small size, `DE421` is the default DE version used within this package. The first time you run the package within an installation the neccesary files will automatically be downloaded. For larger DE versions this may take quite some time.
+
+##### Specifying the DE Version
 
 If you wish you can specify an alternate DE version like this:
 ```php

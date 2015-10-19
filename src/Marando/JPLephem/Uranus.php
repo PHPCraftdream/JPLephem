@@ -4,6 +4,9 @@ namespace Marando\JPLephem;
 
 use \Marando\JPLephem\SSObj;
 
+/**
+ * Represents the planet Uranus
+ */
 class Uranus extends SSObj {
 
   protected function getId() {

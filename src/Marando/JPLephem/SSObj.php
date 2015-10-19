@@ -45,19 +45,19 @@ abstract class SSObj {
    * DE version used in this instance
    * @var DEVer
    */
-  private $de = null;
+  protected $de = null;
 
   /**
    * DE reader used in this instance
    * @var DEReader
    */
-  private $reader = null;
+  protected $reader = null;
 
   /**
    * JDE of this instance
    * @var float
    */
-  private $jde = null;
+  protected $jde = null;
 
   /**
    * Holds the public properties of this instance

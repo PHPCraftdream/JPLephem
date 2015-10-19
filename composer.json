@@ -1,0 +1,22 @@
+{
+  "name": "marando/jplephem",
+  "description": "A PHP package that can read JPL DE ephemeris files",
+  "require": {
+    "marando/units": "^0.1.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.0"
+  },
+  "license": "GNU2",
+  "authors": [
+    {
+      "name": "Ashley Marando",
+      "email": "a.marando@me.com"
+    }
+  ],
+  "autoload": {
+    "psr-0": {
+      "Marando": "src/"
+    }
+  }
+}

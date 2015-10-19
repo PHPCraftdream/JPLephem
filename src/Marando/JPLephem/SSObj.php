@@ -207,4 +207,10 @@ abstract class SSObj {
     $this->reader = new DEReader($this->jde, $this->de);
   }
 
+  // // // Overrides
+
+  public function __toString() {
+    return $this->name;
+  }
+
 }

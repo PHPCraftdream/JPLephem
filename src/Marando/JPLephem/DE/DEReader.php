@@ -267,7 +267,7 @@ class DEReader {
 
   /**
    *
-   * @return DEtest[]
+   * @return DETest[]
    * @throws Exception
    */
   public function testpo() {
@@ -283,7 +283,7 @@ class DEReader {
       $array = $file->splitLine($line, ' ');
 
       if (count($array) == 7) {
-        $test          = new DEtest();
+        $test          = new DETest();
         $test->denum   = $array[0];
         $test->date    = $array[1];
         $test->jde     = $array[2];
@@ -410,7 +410,7 @@ MSG;
    */
   protected function selectFile() {
     // Get year represented by this instance's JDE
-    $year  = static::jdToYear($this->jde);
+    $year = static::jdToYear($this->jde);
 
     // Scan the DE directory for ascp coefficient files
     $files = array_values(preg_grep("/ascp[0-9]./", scandir($this->path)));
@@ -517,7 +517,7 @@ ERROR;
     // Explode chunk to array and parse coefficients
     $chunk = explode("\n", $chunk);
     for ($i = $chunkNum == 0 ? 1 : 0; $i <= floor($nCoeff / 3); $i++) {
-      foreach (static::parseLine($chunk[$i]) as $coeff)
+      foreach (static::filtExplode($chunk[$i]) as $coeff)
         $coeffs[] = static::evalNumber(trim($coeff));
     }
 
@@ -525,7 +525,12 @@ ERROR;
     return $coeffs;
   }
 
-  protected static function parseLine($line) {
+  /**
+   * Explodes a string to an array filtering any empty values
+   * @param string $line
+   * @return array
+   */
+  protected static function filtExplode($line) {
     return array_values(array_filter(explode(' ', trim($line))));
   }
 

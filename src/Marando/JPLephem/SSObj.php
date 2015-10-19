@@ -3,7 +3,7 @@
 namespace Marando\JPLephem;
 
 use \Marando\JPLephem\DE\DEVer;
-use \Marando\JPLephem\DE\DEreader;
+use \Marando\JPLephem\DE\DEReader;
 use \Marando\JPLephem\Results\CartesianVector;
 
 /**
@@ -49,7 +49,7 @@ abstract class SSObj {
 
   /**
    * DE reader used in this instance
-   * @var DEreader
+   * @var DEReader
    */
   private $reader = null;
 
@@ -204,7 +204,7 @@ abstract class SSObj {
 
   // Loads the reader relevant to this instance
   protected function loadReader() {
-    $this->reader = new DEreader($this->jde, $this->de);
+    $this->reader = new DEReader($this->jde, $this->de);
   }
 
 }

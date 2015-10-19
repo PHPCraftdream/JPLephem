@@ -2,21 +2,25 @@
 
 namespace Marando\JPLephem\DE;
 
+use \Exception;
 use \Marando\JPLephem\DE\DEHeader;
+use \Marando\JPLephem\DE\DEVer;
 use \Marando\JPLephem\DE\FileReader;
 use \Marando\JPLephem\Results\CartesianVector;
 use \Marando\Units\Distance;
 use \Marando\Units\Velocity;
-use \Marando\JPLephem\DE\DEVer;
+use \OutOfBoundsException;
 
 /**
  * Reads JPL DE files and interpolates the positions provided by it
  *
- * @property float    $jde      JDE (Julian Ephemeris Day) of this instance
- * @property DEVer       $de       JPL DE version
+ * @property float    $jde    JDE (Julian Ephemeris Day) of this instance
+ * @property DEVer    $de     JPL DE version
  * @property DEHeader $header JPL DE header
+ *
+ * @author Ashley Marando <a.marando@me.com>
  */
-class DEreader {
+class DEReader {
   //----------------------------------------------------------------------------
   // Constants
   //----------------------------------------------------------------------------
@@ -116,15 +120,18 @@ class DEreader {
   //----------------------------------------------------------------------------
 
   /**
-   * Interpolates the position of a planet
+   * Interpolates the position of a planet within the loaded DE
    * @param int $planet The id of the planet to interpolate
    * @return CartesianVector
    */
   public function interpPlanet($planet) {
+    // Get the raw positioning vector
     $raw = $this->interp($planet, 3, true);
 
+    // Grab the AU definition per the header
     $auDef = Distance::km($this->header->const->AU);
 
+    // Make new vector instance using the provided AU definition
     $vector     = new CartesianVector();
     $vector->x  = Distance::au($raw[0], $auDef);
     $vector->y  = Distance::au($raw[1], $auDef);
@@ -137,18 +144,20 @@ class DEreader {
   }
 
   /**
+   * Interpolates a set of Chebyshev polynomials within the DE
    *
+   * @param int  $element    Element number to interpolate
+   * @param int  $components Number of components to interpolate
+   * @param bool $velocity   True returns the velocity
    *
-   *
-   * Earth Mean Equator and Equinox of Reference Epoch
-   * @param type $element
-   * @param type $components
-   * @param type $velocity
-   * @return array
+   * @return array An array of the resulting figures
    */
   public function interp($element, $components = 3, $velocity = false) {
-    $p = $element - 1;  // Convert 1-base to 0-base
+    /// Earth Mean Equator and Equinox of Reference Epoch
+    // Get the 0-based element pointer
+    $p = $element - 1;
 
+    // Find the start and end JDE of the loaded chunk
     $jd0 = $this->chunk[0];
     $jd1 = $this->chunk[1];
 
@@ -157,18 +166,21 @@ class DEreader {
     $nCoeff   = $this->header->coeffCount[$p];
     $nSubIntv = $this->header->coeffSets[$p];
 
-
+    // Get the interval number
     $tint = ($this->jde - $jd0) / $this->header->blockSize;
     $ieph = floor($tint);
 
+    // Get the subinterval number
     $tint = ($tint - $ieph) * $nSubIntv;
     $nseg = floor($tint);
 
-    $tseg = 2 * ($tint - $nseg) - 1;
+    // Find the scaled Chebychev time
+    $chebTime = 2 * ($tint - $nseg) - 1;
 
+    // Evaluate the pointer for the coefficient start
     $pointer += $nseg * $nCoeff * $components;
 
-
+    // Grab the needed coefficients
     $coeff = [];
     $i     = $pointer;
     for ($j = 1; $j <= $components; $j++) {
@@ -178,76 +190,84 @@ class DEreader {
       }
     }
 
-
-
-    //$chebTime = 2 * $tseg;
-    $chebTime = $tseg;
-
+    // Get the position polynomials
     $posPoly = [];
 
+    // First position polynomials are inherent
     $posPoly[1] = 1;
     $posPoly[2] = $chebTime;
 
+    // Find the additional position polynomials
     for ($j = 3; $j <= $nCoeff; $j++)
       $posPoly[$j] = 2 * $chebTime * $posPoly[$j - 1] - $posPoly[$j - 2];
 
-
-    $ephem_r = [];
+    // Find the position of each component
+    $position = [];
     for ($j = 1; $j <= $components; $j++) {
-      $ephem_r[$j] = 0;
+      $position[$j] = 0;
       for ($k = 1; $k < $nCoeff; $k++) {
-        $ephem_r[$j] = $ephem_r[$j] + $coeff[$j][$k] * $posPoly[$k];
+        $position[$j] = $position[$j] + $coeff[$j][$k] * $posPoly[$k];
       }
 
-      //convert to AU
+      // Convert the position to AU based on the header definition
       if ($element <= 11)
-        $ephem_r[$j] = $ephem_r[$j] / $this->header->const->AU;
+        $position[$j] = $position[$j] / $this->header->const->AU;
     }
 
-
+    // Evaluate the velocity if it should be computed
     if ($velocity) {
-      $ephem_v = [];
-      $vPoly   = [];
+      // Find the velocity polynomials
+      $velPoly = [];
 
-      $vPoly[1] = 0;
-      $vPoly[2] = 1;
-      $vPoly[3] = 4 * $chebTime;
+      // First polynomials are inherent
+      $velPoly[1] = 0;
+      $velPoly[2] = 1;
+      $velPoly[3] = 4 * $chebTime;
 
+      // Find each velocity polynomial
       for ($j = 4; $j <= $nCoeff; $j++)
-        $vPoly[$j] = 2 * $chebTime * $vPoly[$j - 1] +
+        $velPoly[$j] = 2 * $chebTime * $velPoly[$j - 1] +
                 2 * $posPoly[$j - 1] -
-                $vPoly[$j - 2];
+                $velPoly[$j - 2];
 
+      // Find the velocity of the body
+      $velocity = [];
       for ($j = 1; $j <= 3; $j++) {
-        $ephem_v[$j] = 0;
+        $velocity[$j] = 0;
 
-        for ($k = 1; $k <= $nCoeff; $k++) {
-          $ephem_v[$j] = $ephem_v[$j] + $coeff[$j][$k] * $vPoly[$k];
-          $v           = "$ephem_v[$j] + {$coeff[$j][$k]} * $vPoly[$k]";
-        }
+        // Compute each velocity coefficient
+        for ($k = 1; $k <= $nCoeff; $k++)
+          $velocity[$j] = $velocity[$j] + $coeff[$j][$k] * $velPoly[$k];
 
-        $ephem_v[$j] = $ephem_v[$j] * (2.0 * $nSubIntv / $this->header->blockSize);
+        // Scale the velocity
+        $velocity[$j] = $velocity[$j] *
+                (2.0 * $nSubIntv / $this->header->blockSize);
 
-        // AU/day
+        // Convert velocity to AU based on the header definition
         if ($element <= 11)
-          $ephem_v[$j] = $ephem_v[$j] / $this->header->const->AU;
+          $velocity[$j] = $velocity[$j] / $this->header->const->AU;
       }
     }
 
-    $ephem   = [];
-    foreach ($ephem_r as $r)
-      $ephem[] = $r;
+    // Array for the final results
+    $results = [];
 
+    // Add each position to the results
+    foreach ($position as $p)
+      $results[] = $p;
+
+    // Add each velocity (if present) to the results
     if ($velocity)
-      foreach ($ephem_v as $v)
-        $ephem[] = $v;
+      foreach ($velocity as $v)
+        $results[] = $v;
 
-    return $ephem;
+    // Return the results
+    return $results;
   }
 
   /**
    *
-   * @return \Marando\JPLephem\DE\DEtest[]
+   * @return DEtest[]
    * @throws Exception
    */
   public function testpo() {
@@ -284,8 +304,8 @@ class DEreader {
   // // // Protected
 
   /**
-   * Checks that the jde of this instance is provided by the desired DE version
-   * @throws \OutOfBoundsException Occurs when the date is out of range
+   * Checks that the JDE of this instance is within the range of the DE
+   * @throws OutOfBoundsException Occurs when the date is out of range
    */
   protected function checkDate() {
     $outOfRangeLower = $this->jde < $this->header->startEpoch;
@@ -298,7 +318,7 @@ The requested JDE '{$this->jde}' is out of range for the
 {$this->header->startEpoch} to JDE {$this->header->finalEpoch}.
 MSG;
 
-      throw new \OutOfBoundsException($message);
+      throw new OutOfBoundsException($message);
     }
   }
 
@@ -347,7 +367,7 @@ MSG;
   }
 
   /**
-   * Returns if the DE files requested by this instance exist in full
+   * Checks if the DE files needed are present on disk
    * @return boolean
    */
   protected function exists() {
@@ -384,17 +404,26 @@ MSG;
     return file_exists($full) ? realpath($full) : $full;
   }
 
+  /**
+   * Selects the appropriate DE file based on the JDE of this instance
+   * @return FileReader
+   */
   protected function selectFile() {
-    // Get year represented by the instance's jde
+    // Get year represented by this instance's JDE
     $year  = static::jdToYear($this->jde);
-    $files = array_values(preg_grep("/ascp[0-9]./", scandir($this->path)));
 
+    // Scan the DE directory for ascp coefficient files
+    $files = array_values(preg_grep("/ascp[0-9]./", scandir($this->path)));
     preg_match('/ascp([0-9]{0,5})/', $files[0], $matches);
 
+    // First year
     $yearA = $matches[1];
+
+    // Loop through the files
     for ($i = 1; $i < count($files); $i++) {
       preg_match('/ascp([0-9]{0,5})/', $files[$i], $matches);
 
+      // Find second year and check if requested year is in that range
       $yearB = $matches[1];
       if ($year >= $yearA && $year < $yearB)
         break;
@@ -402,10 +431,16 @@ MSG;
         $yearA = $yearB;
     }
 
+    // Select the appropriate file
     $file = $files[$i - 1];
     return new FileReader("{$this->path}/{$file}");
   }
 
+  /**
+   * Finds the path DE header file for the DE used in this instance
+   * @return string
+   * @throws Exception Occurs if the header could not be found
+   */
   protected function selectHeaderFile() {
     // Define header file options
     $file    = "{$this->path}/header.{$this->de->version}";
@@ -429,7 +464,7 @@ ERROR;
   }
 
   /**
-   * Finds the year of a julian day number
+   * Finds the year of a JD
    * @param float $jd
    * @return int
    */
@@ -443,10 +478,17 @@ ERROR;
    * @return float
    */
   protected static function evalNumber($raw) {
-    $array = explode('D', $raw);
-    return floatval($array[0]) * 10 ** intval($array[1]);
+    // This should be faster? Will have to test that
+    return floatval(str_replace('D', 'e', $raw));
+
+    //$array = explode('D', $raw);
+    //return floatval($array[0]) * 10 ** intval($array[1]);
   }
 
+  /**
+   * Loads a DE coefficient chunk based on the JDE of this isntance
+   * @return array An arry of the coefficients in the chunk
+   */
   protected function loadChunk() {
     $blockSize = $this->header->blockSize;
     $nCoeff    = $this->header->nCoeff;

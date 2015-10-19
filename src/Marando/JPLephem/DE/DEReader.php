@@ -10,6 +10,7 @@ use \Marando\JPLephem\Results\CartesianVector;
 use \Marando\Units\Distance;
 use \Marando\Units\Velocity;
 use \OutOfBoundsException;
+use \Marando\JPLephem\DE\ElemNotFoundException;
 
 /**
  * Reads JPL DE files and interpolates the positions provided by it
@@ -161,6 +162,11 @@ class DEReader {
     $jd0 = $this->chunk[0];
     $jd1 = $this->chunk[1];
 
+
+    if (count($this->header->coeffStart) < $element)
+      throw new ElemNotFoundException("The element {$element} was not found "
+      . "within the ephemeris data", null, null, $element);
+
     // Coefficient properties
     $pointer  = $this->header->coeffStart[$p] - 1;
     $nCoeff   = $this->header->coeffCount[$p];
@@ -270,8 +276,10 @@ class DEReader {
    * @return DETest[]
    * @throws Exception
    */
-  public function testpo() {
-    $path = "{$this->path}/testpo.{$this->de->version}";
+  public static function testpo(DEVer $de) {
+    $de   = new static(2451545.5, $de);
+    $path = "{$de->path}/testpo.{$de->de->version}";
+
     if (!file_exists($path))
       throw new Exception('testpo file not found');
 

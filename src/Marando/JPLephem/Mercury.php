@@ -4,6 +4,9 @@ namespace Marando\JPLephem;
 
 use \Marando\JPLephem\SSObj;
 
+/**
+ * Represents the planet Mercury
+ */
 class Mercury extends SSObj {
 
   protected function getId() {

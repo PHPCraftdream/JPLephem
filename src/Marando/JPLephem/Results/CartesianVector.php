@@ -70,7 +70,7 @@ class CartesianVector {
     $vy = Velocity::aud($vy);
     $vz = Velocity::aud($vz);
 
-    return new static($x, $y, $z, $vx, $vy, $vz);
+    return (new static($x, $y, $z, $vx, $vy, $vz))->setUnit('AU AU/d');
   }
 
   /**
@@ -94,7 +94,7 @@ class CartesianVector {
     $vy = Velocity::kmd($vy);
     $vz = Velocity::kmd($vz);
 
-    return new static($x, $y, $z, $vx, $vy, $vz);
+    return (new static($x, $y, $z, $vx, $vy, $vz))->setUnit('km km/d');
   }
 
   /**
@@ -118,7 +118,7 @@ class CartesianVector {
     $vy = Velocity::kms($vy);
     $vz = Velocity::kms($vz);
 
-    return new static($x, $y, $z, $vx, $vy, $vz);
+    return (new static($x, $y, $z, $vx, $vy, $vz))->setUnit('km km/s');
   }
 
   //----------------------------------------------------------------------------

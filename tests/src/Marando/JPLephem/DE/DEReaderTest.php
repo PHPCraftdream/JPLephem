@@ -36,21 +36,23 @@ class DEReaderTest extends \PHPUnit_Framework_TestCase {
    * @covers Marando\JPLephem\DE\DEReader::testpo
    */
   public function testTestpo() {
-    //return;
     // Get the tests
-    $de    = new DEReader(2451545);
-    $tests = $de->testpo();
+    $testCount = 50;
+    $tests     = DEReader::testpo(DEVer::DE421());
 
     $i = 0;
     foreach ($tests as $test) {
-      // Skip non planet tests
+      // Skip non-planet tests
       if ($test->center >= 10 || $test->target >= 10)
         continue;
 
-       if ($test->center == 3 || $test->target == 3)
+      /* Skip Earth since the interpolated results refer to the barycenter and
+       * the test data refers to the mass center. These tests will be covered
+       * on the SSOBj testing
+       */
+      if ($test->center == 3 || $test->target == 3)
         continue;
 
-      // Skip when Earth involved since it refers to the center not barycenter
       // Test values
       $jde    = $test->jde;
       $target = $test->target;
@@ -63,8 +65,8 @@ class DEReaderTest extends \PHPUnit_Framework_TestCase {
       $c      = $de->interp($center, 3, true)[$e];
       $result = round($t - $c, 15);
 
-
-      $message =<<<MESSAGE
+      // Prepare message of results
+      $message = <<<MESSAGE
 ---------------------------------
      JDE: {$jde}
        T: {$target}
@@ -74,14 +76,11 @@ Expected: $test->value
 ---------------------------------
 MESSAGE;
 
-
+      // Assert the values match
       $this->assertTrue(abs($result - $test->value) < 1e-13, $message);
 
-
-      if (abs($result - $test->value) > 1e-13)
-        echo "{$jde}\t{$target}\t{$center}\n{$result}\n{$test->value}\n\n";
-
-      if ($i == 50)
+      // Only run the define number of tests
+      if ($i == $testCount)
         break;
 
       $i++;

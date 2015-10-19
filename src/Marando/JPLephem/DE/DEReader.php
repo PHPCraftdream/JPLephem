@@ -270,8 +270,10 @@ class DEReader {
    * @return DETest[]
    * @throws Exception
    */
-  public function testpo() {
-    $path = "{$this->path}/testpo.{$this->de->version}";
+  public static function testpo(DEVer $de) {
+    $de   = new static(2451545.5, $de);
+    $path = "{$de->path}/testpo.{$de->de->version}";
+
     if (!file_exists($path))
       throw new Exception('testpo file not found');
 

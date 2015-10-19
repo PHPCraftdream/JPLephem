@@ -4,7 +4,7 @@ namespace Marando\JPLephem\DE;
 
 /**
  * Represents a row of data from a DE test file
- * 
+ *
  * @property string $denum
  * @property string $date
  * @property float  $jde

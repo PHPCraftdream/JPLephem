@@ -494,7 +494,7 @@ ERROR;
    * @return int
    */
   protected static function jdToYear($jd) {
-    return floor(2000 + floor(($jd - 2451544.500000) / 36525));
+    return floor(2000 + floor(($jd - 2451544.500000) / 365.25));
   }
 
   /**

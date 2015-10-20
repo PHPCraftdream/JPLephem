@@ -109,11 +109,28 @@ class DEReader {
   protected $properties = [];
 
   public function __get($name) {
-    return $this->properties[$name];
+    switch ($name) {
+      case 'de':
+      case 'header':
+      case 'jde':
+        return $this->properties[$name];
+
+      default:
+        throw new Exception("'{$name}' is not a valid property.");
+    }
   }
 
   public function __set($name, $value) {
-    $this->properties[$name] = $value;
+    switch ($name) {
+      case 'de':
+      case 'header':
+      case 'jde':
+        $this->properties[$name] = $value;
+        break;
+
+      default:
+        throw new Exception("'{$name}' is not a valid property.");
+    }
   }
 
   //----------------------------------------------------------------------------

@@ -75,8 +75,8 @@ class DEReader {
     $this->checkDate();
 
     // Reference relevant file and load relevant chunk
-    $this->file  = $this->selectFile();
-    $this->chunk = $this->loadChunk();
+    $this->selectFile();
+    $this->loadChunk();
   }
 
   //----------------------------------------------------------------------------
@@ -103,17 +103,40 @@ class DEReader {
   protected $file;
 
   /**
+   * The number of years between ascp DE files for this instance
+   * @var int
+   */
+  protected $yearIntvl = 0;
+
+  /**
    * Holds the public properties of this instance
    * @var array
    */
   protected $properties = [];
 
   public function __get($name) {
-    return $this->properties[$name];
+    switch ($name) {
+      case 'de':
+      case 'header':
+      case 'jde':
+        return $this->properties[$name];
+
+      default:
+        throw new Exception("'{$name}' is not a valid property.");
+    }
   }
 
   public function __set($name, $value) {
-    $this->properties[$name] = $value;
+    switch ($name) {
+      case 'de':
+      case 'header':
+      case 'jde':
+        $this->properties[$name] = $value;
+        break;
+
+      default:
+        throw new Exception("'{$name}' is not a valid property.");
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -154,6 +177,8 @@ class DEReader {
    * @return array An array of the resulting figures
    */
   public function interp($element, $components = 3, $velocity = false) {
+    $this->checkJDE();
+
     /// Earth Mean Equator and Equinox of Reference Epoch
     // Get the 0-based element pointer
     $p = $element - 1;
@@ -162,6 +187,9 @@ class DEReader {
     $jd0 = $this->chunk[0];
     $jd1 = $this->chunk[1];
 
+    // Load chunk if JDE has changed
+    if ($this->jde < $jd0 || $this->jde > $jd1)
+      $this->loadChunk();
 
     if (count($this->header->coeffStart) < $element)
       throw new ElemNotFoundException("The element {$element} was not found "
@@ -413,8 +441,25 @@ MSG;
   }
 
   /**
+   * Checks that the current JDE is still within the range of the loaded file,
+   * and if not loads the appropriate file and chunk
+   */
+  protected function checkJDE() {
+    $this->checkDate();
+
+    preg_match('/ascp([0-9]{0,6})/', $this->file->getBasename(), $matches);
+    $ldYearA = (int)$matches[1];
+    $ldYearB = $ldYearA + $this->yearIntvl;
+
+    $year = static::jdToYear($this->jde);
+    if ($year < $ldYearA || $year > $ldYearB) {
+      $this->selectFile();
+      $this->loadChunk();
+    }
+  }
+
+  /**
    * Selects the appropriate DE file based on the JDE of this instance
-   * @return FileReader
    */
   protected function selectFile() {
     // Get year represented by this instance's JDE
@@ -433,6 +478,9 @@ MSG;
 
       // Find second year and check if requested year is in that range
       $yearB = $matches[1];
+
+      $this->yearIntvl = $yearB - $yearA;
+
       if ($year >= $yearA && $year < $yearB)
         break;
       else
@@ -440,8 +488,8 @@ MSG;
     }
 
     // Select the appropriate file
-    $file = $files[$i - 1];
-    return new FileReader("{$this->path}/{$file}");
+    $file       = $files[$i - 1];
+    $this->file = new FileReader("{$this->path}/{$file}");
   }
 
   /**
@@ -477,7 +525,7 @@ ERROR;
    * @return int
    */
   protected static function jdToYear($jd) {
-    return floor(2000 + floor(($jd - 2451544.500000) / 36525));
+    return floor(2000 + floor(($jd - 2451544.500000) / 365.25));
   }
 
   /**
@@ -495,7 +543,6 @@ ERROR;
 
   /**
    * Loads a DE coefficient chunk based on the JDE of this isntance
-   * @return array An arry of the coefficients in the chunk
    */
   protected function loadChunk() {
     $blockSize = $this->header->blockSize;
@@ -529,8 +576,8 @@ ERROR;
         $coeffs[] = static::evalNumber(trim($coeff));
     }
 
-    // Return coefficients
-    return $coeffs;
+    // Set the coefficients
+    $this->chunk = $coeffs;
   }
 
   /**

@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "08ebfe6cd4af6ea41773c678b5444742",
+    "hash": "95dcd8f0799945929f805184620065fe",
     "packages": [
         {
             "name": "marando/units",
-            "version": "0.1.3",
+            "version": "0.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/marando/Units.git",
-                "reference": "89ce0e371416a0b504ed5924a6cd0106592eb2c9"
+                "reference": "dc4c574430334f4cc6a98ca48e49bf44de717e39"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marando/Units/zipball/89ce0e371416a0b504ed5924a6cd0106592eb2c9",
-                "reference": "89ce0e371416a0b504ed5924a6cd0106592eb2c9",
+                "url": "https://api.github.com/repos/marando/Units/zipball/dc4c574430334f4cc6a98ca48e49bf44de717e39",
+                "reference": "dc4c574430334f4cc6a98ca48e49bf44de717e39",
                 "shasum": ""
             },
             "require": {
@@ -43,7 +43,7 @@
                 }
             ],
             "description": "A PHP package consisting of classes representing units of measure",
-            "time": "2015-10-22 05:51:07"
+            "time": "2015-10-24 17:10:26"
         }
     ],
     "packages-dev": [
@@ -494,16 +494,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.0.6",
+            "version": "5.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "d2656ec378c88e036b3fc14fb4262ee1a25498c9"
+                "reference": "97fb2503cf8caca9d768fde3cca2ab147b9e7030"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/d2656ec378c88e036b3fc14fb4262ee1a25498c9",
-                "reference": "d2656ec378c88e036b3fc14fb4262ee1a25498c9",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/97fb2503cf8caca9d768fde3cca2ab147b9e7030",
+                "reference": "97fb2503cf8caca9d768fde3cca2ab147b9e7030",
                 "shasum": ""
             },
             "require": {
@@ -564,7 +564,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-10-14 13:51:20"
+            "time": "2015-10-23 06:50:01"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

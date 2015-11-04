@@ -387,6 +387,13 @@ MSG;
     }
   }
 
+  public static function testpo(DE $de) {
+    $de   = new Reader($de);
+    $path = "{$de->path}/testpo.{$de->de->version}";
+
+    return new FileReader($path);
+  }
+
   protected function download() {
     $url         = "ssd.jpl.nasa.gov";
     $path        = $this->getStoragePath();

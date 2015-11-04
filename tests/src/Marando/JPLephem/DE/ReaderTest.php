@@ -33,55 +33,52 @@ class ReaderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testpo() {
-    echo "\n";
+    // Define number of tests to run
+    $testLimit = 100;
 
-
-
-
-
-
-
-    $limit = 200;
-    $de    = new Reader(DE::DE421());
-
+    // Create reader, and obtain testpo file reference
+    $reader = new Reader(DE::DE421());
     $testpo = Reader::testpo(DE::DE421());
-    $i      = 0;
-    while ($testpo->valid()) {
+
+    // Seek initial test line
+    $testpo->seek(8);
+
+    // Iterate through each line in the testpo file
+    for ($i = 0; $i < $testLimit; $i++) {
+      // Read and split next line to array
       $testpo->next();
       $line = $testpo->splitCurrent(' ');
 
+      // Check if array has the tests
       if (count($line) != 7)
         continue;
 
-      if ($i > $limit)
-        break;
-
+      // Parse out test values
       $jde    = $line[2];
-      $target = $line[3] != 3 ? new SSObj($line[3]) : SSObj::Earth();
-      $center = $line[4] != 3 ? new SSObj($line[4]) : SSObj::Earth();
+      $target = $line[3];
+      $center = $line[4];
       $elem   = $line[5];
       $valExp = (float)$line[6];
 
+      // Only test Planets, Sun and Moon
+      if ($target > 11 || $center > 11)
+        continue;
 
-      if ($target->id < 12 && $center->id < 12) {
-        // Interpolate value
-        $pv     = $de->jde($jde)->position($target, $center);
-        $valAct = $pv[$elem - 1];
+      // Get SSObj instance for target & center
+      $target = $target == 3 ? SSObj::Earth() : new SSObj($target);
+      $center = $center == 3 ? SSObj::Earth() : new SSObj($center);
 
-        $this->assertEquals($valExp, $valAct);
+      // Interpolate position/velocity & grab test coordinate element
+      $posvel = $reader->jde($jde)->position($target, $center);
+      $valAct = $posvel[$elem - 1];
 
-        $correct = $valAct == $valExp ? 'Y' : 'N';
-
-        if (abs($valAct - $valExp) > 1e-13) {
-          echo "\n{$jde}\tT={$target->id} C={$center->id} E=($elem)";
-          echo "\n-- $valExp}\n++ {$valAct}\n";
-        }
-      }
-
-      $i++;
+      $e = sprintf('%+11.13E', $valExp);
+      $a = sprintf('%+11.13E', $valAct);
+      echo "\n$target->id\t$center->id\t--- $e\n\t\t+++ $a\n";
+      $this->assertEquals($valExp, $valAct);
     }
 
-    echo "\n\n";
+    echo "\n";
   }
 
   ///////

@@ -99,7 +99,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase {
 
         $format = '%+0.15E';
 
-        echo "\n\n$jde\n$t -> $c";
+        echo "\n\n$jde\n$c -> $t";
         echo "\n[ " . sprintf($format, $pv[0]);
         echo " " . sprintf($format, $pv[1]);
         echo " " . sprintf($format, $pv[2]) . " ]";
@@ -108,11 +108,13 @@ class ReaderTest extends \PHPUnit_Framework_TestCase {
         echo " " . sprintf($format, $pv[5]) . " ]";
       }
     }
+
+    echo "\n";
   }
 
   public function testpo() {
     // Define number of tests to run
-    $testLimit = 100;
+    $testLimit = 250;
 
     // Create reader, and obtain testpo file reference
     $reader = new Reader(DE::DE421());
@@ -152,12 +154,35 @@ class ReaderTest extends \PHPUnit_Framework_TestCase {
 
       $e = sprintf('%+11.13E', $valExp);
       $a = sprintf('%+11.13E', $valAct);
-      echo "\n$target->id\t$center->id\t--- $e\n\t\t+++ $a\n";
+      echo "\n{$center} -> {$target}\n--- $e\n+++ $a\n";
 
       $this->assertEquals($valExp, $valAct, $jde, 1e-13);
     }
 
     echo "\n";
+  }
+
+  public function testMultiDate() {
+    $target = SSObj::Mercury();
+    $center = SSObj::Earth();
+    $jd1    = 2451545;
+    $jdN    = 2451546;
+    $step   = 0.1;
+    $format = '%+0.15E';
+
+    echo "\n\n$center -> $target\n";
+
+    $de = new Reader();
+    for ($jd = $jd1; $jd < $jdN; $jd += $step) {
+      $pv = $de->jde($jd)->position($target, $center);
+
+      echo "\n$jd\n[ " . sprintf($format, $pv[0]);
+      echo " " . sprintf($format, $pv[1]);
+      echo " " . sprintf($format, $pv[2]) . " ]";
+      echo "\n[ " . sprintf($format, $pv[3]);
+      echo " " . sprintf($format, $pv[4]);
+      echo " " . sprintf($format, $pv[5]) . " ]\n";
+    }
   }
 
 }

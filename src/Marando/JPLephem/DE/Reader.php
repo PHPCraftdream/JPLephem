@@ -195,12 +195,12 @@ class Reader {
     $chebTime = 2 * ($tint - $nseg) - 1;
 
     // Evaluate the pointer for the coefficient start
-    $pointer += $nseg * $nCoeff * $components;
+    $pointer += $nseg * $nCoeff * min([$components, 3]);
 
     // Grab the needed coefficients
     $coeff = [];
     $i     = $pointer;
-    for ($j = 1; $j <= $components; $j++) {
+    for ($j = 1; $j <= min([$components, 3]); $j++) {
       for ($k = 1; $k <= $nCoeff; $k++) {
         $coeff[$j][$k] = $this->chunk[$i];
         $i++;
@@ -220,7 +220,7 @@ class Reader {
 
     // Find the position of each component
     $position = [];
-    for ($j = 1; $j <= $components; $j++) {
+    for ($j = 1; $j <= min([$components, 3]); $j++) {
       $position[$j] = 0;
       for ($k = 1; $k < $nCoeff; $k++) {
         $position[$j] = $position[$j] + $coeff[$j][$k] * $posPoly[$k];
@@ -274,7 +274,7 @@ class Reader {
       $results[] = $p;
 
     // Add each velocity (if present) to the results
-    if ($velocity)
+    if ($components == 6)
       foreach ($velocity as $v)
         $results[] = $v;
 

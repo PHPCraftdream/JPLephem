@@ -24,7 +24,7 @@ class SSObj {
 
   public $id;
 
-  protected function __construct($id) {
+  public function __construct($id) {
     $this->id = $id;
   }
 

@@ -8,12 +8,16 @@ namespace Marando\JPLephem\DE;
 class ReaderTest extends \PHPUnit_Framework_TestCase {
 
   public function testPositionSolarBary() {
-    $de  = new Reader();
+    return;
+    $de = new Reader();
+
+
+
     $ssb = $de->position(SSObj::SolarBary());
 
     $this->assertEquals([0, 0, 0, 0, 0, 0], $ssb);
 
-    
+
 
 
     //$ssb = $de->position(SSObj::Moon());
@@ -26,6 +30,58 @@ class ReaderTest extends \PHPUnit_Framework_TestCase {
 
     $ssb = $de->jde(2451585)->position(SSObj::Mars(), SSObj::Pluto());
     var_dump($ssb);
+  }
+
+  public function testpo() {
+    echo "\n";
+
+
+
+
+
+
+
+    $limit = 200;
+    $de    = new Reader(DE::DE421());
+
+    $testpo = Reader::testpo(DE::DE421());
+    $i      = 0;
+    while ($testpo->valid()) {
+      $testpo->next();
+      $line = $testpo->splitCurrent(' ');
+
+      if (count($line) != 7)
+        continue;
+
+      if ($i > $limit)
+        break;
+
+      $jde    = $line[2];
+      $target = $line[3] != 3 ? new SSObj($line[3]) : SSObj::Earth();
+      $center = $line[4] != 3 ? new SSObj($line[4]) : SSObj::Earth();
+      $elem   = $line[5];
+      $valExp = (float)$line[6];
+
+
+      if ($target->id < 12 && $center->id < 12) {
+        // Interpolate value
+        $pv     = $de->jde($jde)->position($target, $center);
+        $valAct = $pv[$elem - 1];
+
+        $this->assertEquals($valExp, $valAct);
+
+        $correct = $valAct == $valExp ? 'Y' : 'N';
+
+        if (abs($valAct - $valExp) > 1e-13) {
+          echo "\n{$jde}\tT={$target->id} C={$center->id} E=($elem)";
+          echo "\n-- $valExp}\n++ {$valAct}\n";
+        }
+      }
+
+      $i++;
+    }
+
+    echo "\n\n";
   }
 
   ///////

@@ -1,68 +1,76 @@
 <?php
 
+/*
+ * Copyright (C) 2015 ashley
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
 namespace Marando\JPLephem\DE;
 
-use \Marando\JPLephem\DE\FileReader;
-use \Exception;
+class Header {
 
-/**
- * Represents the header of a JPL DE ephemeris release
- *
- * @property string  $description Description of the DE
- * @property float   $startEpoch  JDE of the starting epoch of the DE
- * @property float   $finalEpoch  JDE of the final epoch of the DE
- * @property int     $blockSize   The number of days covered by each block
- * @property int     $kSize
- * @property int     $nCoeff      Number of Chebyshev coefficients per block
- * @property DEConst $const       All constants defined within the header
- * @property array   $coeffStart  Start coefficient of each body
- * @property array   $coeffCount  Number of coefficients per body
- * @property array   $coeffSets   Number of coefficient sets per body
- *
- * @author Ashley Marando <a.marando@me.com>
- */
-class DEHeader {
   //----------------------------------------------------------------------------
   // Constructors
   //----------------------------------------------------------------------------
 
-  /**
-   * Creates a new header instance from the path to a DE header file
-   * @param string $filePath Full or relative path to the haeder file
-   * @throws Exception Occurs if the file does not exist
-   */
-  public function __construct($filePath) {
-    // Check for file existence
-    if (!file_exists($filePath))
-      throw new Exception("Invalid path: {$filePath}");
+  public function __construct($file) {
+    // Check if file exists
+    if (!file_exists($file))
+      throw new Exception("Invalid path {$file}");
 
-    // Create a new FileReader instance
-    $file = new FileReader($filePath);
+    // Create new FileReader instance
+    $fRead = new FileReader($file);
 
     // Parse each section
-    $this->parseMeta($file);
-    $this->parseGroup1010($file);
-    $this->parseGroup1030($file);
-    $this->parseGroup1040and1041($file);
-    $this->parseGroup1050($file);
+    $this->parseMeta($fRead);
+    $this->parseGroup1010($fRead);
+    $this->parseGroup1030($fRead);
+    $this->parseGroup1040and1041($fRead);
+    $this->parseGroup1050($fRead);
   }
 
   //----------------------------------------------------------------------------
   // Properties
   //----------------------------------------------------------------------------
 
-  /**
-   * Holds the public properties for this instance
-   * @var array
-   */
-  protected $properties = [];
+  protected $desc;
+  protected $startEpoch;
+  protected $finalEpoch;
+  protected $blockSize;
+  protected $kSize;
+  protected $nCoeff;
+  protected $const;
+  protected $coeffStart = [];
+  protected $coeffCount = [];
+  protected $coeffSets  = [];
 
   public function __get($name) {
-    return $this->properties[$name];
-  }
-
-  public function __set($name, $value) {
-    $this->properties[$name] = $value;
+    switch ($name) {
+      case 'desc':
+      case 'startEpoch':
+      case 'finalEpoch':
+      case 'blockSize':
+      case 'kSize':
+      case 'nCoeff':
+      case 'const':
+      case 'coeffStart':
+      case 'coeffCount':
+      case 'coeffSets':
+        return $this->{$name};
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -137,7 +145,8 @@ class DEHeader {
     }
 
     // Create a new constant instance and store each of the coefficients
-    $this->const                    = new DEConst();
+    $this->const = new Constant();
+
     for ($i = 0; $i < count($coeffNames); $i++)
       $this->const->{$coeffNames[$i]} = $coeffValues[$i];
   }

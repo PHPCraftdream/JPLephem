@@ -125,7 +125,7 @@ class Reader {
    */
   public function jde($jde) {
     // Set the JDE
-    $this->jde = $jde;
+    $this->jde = (float)$jde;
 
     // Check if JDE is within range for the entire DE span and loaded
     $this->checkValidJDE();

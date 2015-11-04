@@ -171,7 +171,7 @@ class Reader {
     $jd1 = $this->chunk[1];
 
     // Load chunk if JDE has changed
-    if ($this->jde < $jd0 || $this->jde > $jd1)
+    if ($this->jde < $jd0 || $this->jde >= $jd1)
       $this->loadChunk();
 
     if (count($this->header->coeffStart) < $elem)

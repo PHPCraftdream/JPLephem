@@ -20,6 +20,10 @@
 
 namespace Marando\JPLephem\DE;
 
+use \Exception;
+use \Marando\Units\Time;
+use \OutOfBoundsException;
+
 class Reader {
   //----------------------------------------------------------------------------
   // Constants
@@ -134,6 +138,14 @@ class Reader {
     return $this;
   }
 
+  /**
+   * Calculates the position and velocity vector of a target with respect to a
+   * given center
+   *
+   * @param  SSObj $target Target body
+   * @param  SSObj $center Center body
+   * @return array         Position/velocity vector in AU and AU/day
+   */
   public function position(SSObj $target, SSObj $center = null) {
     // True position
 
@@ -155,8 +167,43 @@ class Reader {
     }
   }
 
-  public function observe($target, $center) {
-    // Astrometric position w/ light travel time
+  /**
+   * Calculates the position and velocity vector of a target with respect to a
+   * given center accounting for light-travel time
+   *
+   * @param  SSObj $target Target body
+   * @param  SSObj $center Center body
+   * @param  Time  $lt     Target -> center light travel time
+   * @return array         Position/velocity vector in AU and AU/day
+   */
+  public function observe(SSObj $target, SSObj $center, Time &$lt = null) {
+    // Initial JDE
+    $jde = $this->jde;
+
+    // Light-travel time (days) and target distance (au)
+    $τ = 0;
+    $Δ = 0;
+
+    // Maximum convergence iterations
+    $maxIter = 100;
+
+    // Converge on light travel time
+    for ($i = 0; $i < $maxIter; $i++) {
+      // Calculate position, distance and light travel time
+      $pv = $this->jde($jde - $τ)->position($target, $center);
+      $Δ0 = sqrt($pv[0] * $pv[0] + $pv[1] * $pv[1] + $pv[2] * $pv[2]);
+      $τ  = 0.0057755183 * $Δ0;
+
+      // Check if distance equals last distance
+      if ($Δ0 != $Δ)
+        $Δ = $Δ0;  // Doesn't equal push and re-iterate
+    }
+
+    // Store light travel time as Time instance
+    $lt = Time::days($τ);
+
+    // Return the apparent position
+    return $this->jde($jde - $τ)->position($target, $center);
   }
 
   public function interp($elem, $components) {

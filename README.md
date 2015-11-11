@@ -1,7 +1,14 @@
 JPLephem
 ========
-JPLephem is a PHP package that is capable of reading Jet Propulsion Laboratory Development Ephemeris (JPL DE) files in order to calculate the positions and velocities of the major planets, the Sun and Earth's Moon. The package can also interpolate additional information held within the ephemeris files (depending upon the DE version) such as the Earth's Nutations in longitude and obliquity according to the IAU 1980 model, lunar mantle librations and angular velocity as well as the value of TT-TDB at the geocenter.
+JPLephem is a PHP package capable of reading Jet Propulsion Laboratory Development Ephemeris (JPL DE) files and caclulating the positions and velocities of the major planets, the Sun and Earth's Moon. The package can also interpolate additional information held within the ephemeris files (depending upon the DE version) such as the Earth's Nutations in longitude and obliquity according to the IAU 1980 model, lunar mantle librations and angular velocity as well as the value of TT-TDB at the geocenter.
 
+Installation
+------------
+#### With Composer
+
+```
+$ composer require marando/jplephem
+```
 
 Usage
 -----
@@ -64,6 +71,7 @@ Depending on the DE version, there may be additional information held within the
 
  Description                      | Element  | Components | Units
 ----------------------------------|----------|------------|-------------
+ Mercury—Pluto, Sun & Moon        | 1-11     | 6          | au, au/day
  Earth Nutations (IAU 1980 model) | 12       | 2          | radians
  Lunar mantle libration           | 13       | 3          | radians
  Lunar mantle angular velocity    | 14       | 3          | radians/day

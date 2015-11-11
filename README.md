@@ -1,10 +1,46 @@
 JPLephem
 ========
-JPLephem is a PHP package that is capable of reading Jet Propulsion Laboratory Development Ephemeris (JPL DE) files in order to calculate the circumstances describing the the positions and velocities of the major planets, Sun and Earth's Moon. The package can also calculate the Earth's Nutations in longitude and obliquity according to the IAU 1980 model, lunar mantle librations and angular velocity as well as the value of TT-TDB at the geocenter.
+JPLephem is a PHP package that is capable of reading Jet Propulsion Laboratory Development Ephemeris (JPL DE) files in order to calculate the positions and velocities of the major planets, the Sun and Earth's Moon. The package can also interpolate additional information held within the ephemeris files (depending upon the DE version) such as the Earth's Nutations in longitude and obliquity according to the IAU 1980 model, lunar mantle librations and angular velocity as well as the value of TT-TDB at the geocenter.
 
 
 Usage
 -----
+Usage is fairly straightfoward, first you'll want to import the reader class:
+```php
+use \Marando\JPLephem\DE\Reader;
+```
+After that just instantiate a new instance:
+```php
+$de = new Reader();
+```
+
+Then just specify the observation JDE:
+```php
+$de->jde(2451545.5);
+```
+And you're ready to interpolate positions:
+```php
+$de->position(SSObj::Mercury());
+$de->position(SSObj::Pluto());
+```
+The results are an array of 6 values representing respectively the position and velocity x, y and z coordinates. For example: 
+```php
+print_r( $de->position(SSObj::Pluto()) );
+
+Output:
+Array
+(
+    [0] => -9.8809726622956
+    [1] => -27.982087174796
+    [2] => -5.7552504336267
+    [3] => 0.0030341820284709
+    [4] => -0.0011342010879702
+    [5] => -0.0012681328951126
+)
+```
+
+
+
 
 Usage is fairly straightforward. Each planetary object as well as the Sun, Moon and Solar System barycenter has it's own class which you then supply Julian ephemeris day (JDE) assumed to already be converted to Barycentric Dynamical Time (TDB). You can then find the position by calling the `position()` method, which is demonstrated below. Also, a few of these objects have additional methods which are tabulated at the [bottom of this page](https://github.com/marando/JPLephem/blob/dev/README.md#classes-for-the-planets-sun-and-moon).
 

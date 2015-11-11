@@ -5,12 +5,9 @@ JPLephem is a PHP package that is capable of reading Jet Propulsion Laboratory D
 
 Usage
 -----
-Usage is fairly straightfoward, first you'll want to import the reader class:
+Usage is fairly straightfoward, first you'll want to import the reader class and instantiate a new reader instance:
 ```php
 use \Marando\JPLephem\DE\Reader;
-```
-After that just instantiate a new instance:
-```php
 $de = new Reader();
 ```
 

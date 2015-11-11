@@ -59,7 +59,7 @@ echo $lt;  // Result: 0.179 days
 ```
 
 #### Interpolating Additional Values
-Depending on the DE version number, there may be additional information held within the ephemeris files, such as the Earth's nutations and lunar libration angles. To interpolate these values you can use the `interp()` method and provide the DE element number and number of components which can be found in JPL's documentation.
+Depending on the DE version, there may be additional information held within the ephemeris files, such as the Earth's nutations and lunar libration angles. To interpolate these values you can use the `interp()` method and provide the element number and number of components which can be found in [JPL's documentation](ftp://ssd.jpl.nasa.gov/pub/eph/planets/ascii/ascii_format.txt).
 
 For example, to find the Earth's nutations in longitude and obliquity according to the 1980 IAU model, you first need to know that the nutations are element 12 and there are 2 components, then call:
 ```php
@@ -83,6 +83,9 @@ If you wish you can specify an alternate DE version like this:
 ```php
 $DE431 = new Reader(DE::DE431());
 ```
+
+Full documentation on available DE versions can be found here:
+ftp://ssd.jpl.nasa.gov/pub/eph/planets/README.txt
 
 
 

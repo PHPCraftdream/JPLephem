@@ -77,7 +77,7 @@ Array
 #### About DE Versions
 Because of its small size, `DE421` is the default DE version used within this package. The first time you run the package within any installation the neccesary files will be automatically downloaded. For larger DE versions this may take quite some time.
 
-### Specifying the DE Version
+#### Specifying the DE Version
 
 If you wish you can specify an alternate DE version like this:
 ```php

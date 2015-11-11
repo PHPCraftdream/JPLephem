@@ -116,10 +116,31 @@ class Reader {
    * @var type
    */
   protected $yearIntvl;
+  protected $unit = 'au';
 
   //----------------------------------------------------------------------------
   // Functions
   //----------------------------------------------------------------------------
+
+  /**
+   * Specifies this instance should return positions and velocities in AU and
+   * AU/day respectively
+   * @return static
+   */
+  public function au() {
+    $this->unit = 'au';
+    return $this;
+  }
+
+  /**
+   * Specifies this instance should return positions and velocities in km and
+   * km/day respectively
+   * @return static
+   */
+  public function km() {
+    $this->unit = 'km';
+    return $this;
+  }
 
   /**
    * Sets the JDE of the reader, and is assumed to be in Barycentric Dynamical
@@ -281,7 +302,7 @@ class Reader {
       }
 
       // Convert the position to AU based on the header definition
-      if ($elem <= 11)
+      if ($elem <= 11 && $this->unit == 'au')
         $position[$j] = $position[$j] / $this->header->const->AU;
     }
 
@@ -315,7 +336,7 @@ class Reader {
                 (2.0 * $nSubIntv / $this->header->blockSize);
 
         // Convert velocity to AU based on the header definition
-        if ($elem <= 11)
+        if ($elem <= 11 && $this->unit == 'au')
           $velocity[$j] = $velocity[$j] / $this->header->const->AU;
       }
     }

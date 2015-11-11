@@ -59,13 +59,21 @@ echo $lt;  // Result: 0.179 days
 ```
 
 #### Interpolating Additional Values
-Depending on the DE version, there may be additional information held within the ephemeris files, such as the Earth's nutations and lunar libration angles. To interpolate these values you can use the `interp()` method and provide the element number and number of components which can be found in [JPL's documentation](ftp://ssd.jpl.nasa.gov/pub/eph/planets/ascii/ascii_format.txt).
+Depending on the DE version, there may be additional information held within the ephemeris files, such as the Earth's nutations and lunar libration angles. To interpolate these values you can use the `interp()` method and provide the element number and number of components shown below (which can be found in [JPL's documentation](ftp://ssd.jpl.nasa.gov/pub/eph/planets/ascii/ascii_format.txt))
+
+
+ Description                      | Element  | Components | Units
+----------------------------------|----------|------------|-------------
+ Earth Nutations (IAU 1980 model) | 12       | 2          | radians
+ Lunar mantle libration           | 13       | 3          | radians
+ Lunar mantle angular velocity    | 14       | 3          | radians/day
+ TT-TDB (at geocenter)            | 15 or 17 | 1          | seconds
 
 For example, to find the Earth's nutations in longitude and obliquity according to the 1980 IAU model, you first need to know that the nutations are element 12 and there are 2 components, then call:
 ```php
 $nutations = $de->interp(12, 2);
 ```
-The results are an array in the units specified by the DE version. For the Earth's nutations, the first element is nutation in longitude (Δψ), and the second is nutation in obliquity (Δε), and in this case both values are expressed radians:
+The results are an array in the units specified by the DE version. For example, for the Earth's nutations, the first element is nutation in longitude (Δψ), and the second is nutation in obliquity (Δε), and in this case both values are expressed radians:
 ```php
 Array
 (
@@ -73,6 +81,9 @@ Array
     [1] => -2.8042821016313E-5  // Δε in radians
 )
 ```
+
+
+
 
 #### Specifying the DE Version
 Because of its small size, `DE421` is the default DE version used within this package. The first time you run the package within any installation the neccesary files will be automatically downloaded. For larger DE versions this may take quite some time.
@@ -82,7 +93,6 @@ If you wish you can specify an alternate DE version like this:
 $DE431 = new Reader(DE::DE431());
 ```
 
-Full documentation on available DE versions can be found [here](ftp://ssd.jpl.nasa.gov/pub/eph/planets/README.txt).
 
 
 

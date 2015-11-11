@@ -82,8 +82,7 @@ If you wish you can specify an alternate DE version like this:
 $DE431 = new Reader(DE::DE431());
 ```
 
-Full documentation on available DE versions can be found here:
-ftp://ssd.jpl.nasa.gov/pub/eph/planets/README.txt
+Full documentation on available DE versions can be found [here](ftp://ssd.jpl.nasa.gov/pub/eph/planets/README.txt).
 
 
 

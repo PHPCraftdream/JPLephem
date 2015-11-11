@@ -31,7 +31,7 @@ Solar system barycentric positions can be found by calling the `position()` meth
 $de->position(SSObj::Mercury());
 $de->position(SSObj::Pluto());
 ```
-The `position()` method returns an array of six values representing respectively the position x, y and z and velocity x, y and z coordinates in astronomical units. For example: 
+The `position()` method returns an array of six values representing respectively the position x, y and z and velocity x, y and z coordinates. For example: 
 ```php
 print_r( $de->position(SSObj::Pluto()) );
 
@@ -45,6 +45,11 @@ Array
     [4] => -0.0011342010879702  // y velocity
     [5] => -0.0012681328951126  // z velocity
 )
+```
+By default the distance units are in AU and the velocity units are in AU/day, but they can be changed to km and km/day by using the following methods:
+```php
+$de->km();  // Use km & km/day
+$de->au();  // Use AU & AU/day
 ```
 
 #### Target -> Center Relative Positions

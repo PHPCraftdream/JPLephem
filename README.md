@@ -15,26 +15,66 @@ Then just specify the observation JDE:
 ```php
 $de->jde(2451545.5);
 ```
-And you're ready to interpolate positions:
+And you're ready to interpolate positions!  
+
+#### Solar System Barycentric Positions
+Solar system barycentric positions can be found by calling the `position()` method with only the first parameter as shown:
 ```php
 $de->position(SSObj::Mercury());
 $de->position(SSObj::Pluto());
 ```
-The results are an array of 6 values representing respectively the position and velocity x, y and z coordinates. For example: 
+The `position()` method returns an array of six values representing respectively the position x, y and z and velocity x, y and z coordinates in astronomical units. For example: 
 ```php
 print_r( $de->position(SSObj::Pluto()) );
 
 Output:
 Array
 (
-    [0] => -9.8809726622956
-    [1] => -27.982087174796
-    [2] => -5.7552504336267
-    [3] => 0.0030341820284709
-    [4] => -0.0011342010879702
-    [5] => -0.0012681328951126
+    [0] => -9.8809726622956     // x position
+    [1] => -27.982087174796     // y position
+    [2] => -5.7552504336267     // z position
+    [3] => 0.0030341820284709   // x velocity
+    [4] => -0.0011342010879702  // y velocity
+    [5] => -0.0012681328951126  // z velocity
 )
 ```
+
+#### Target -> Center Relative Positions
+To find the relative position of a target body with respect to a defined center body, simply call the `position()` method as above, and provided a second argument defining the center:
+```php
+              // Target       // Center
+$de->position(SSObj::Pluto(), SSObj::Mercury());
+```
+
+#### Adjusting for Light-Time
+You can also find positions adjusted for light travel time by calling the `observe()` method:
+```php
+$de->observe(SSObj::Pluto(), SSObj::Earth());
+```
+To get the light-time simply supply a third pass-by reference variable to the call:
+```php
+$de->observe(SSObj::Pluto(), SSObj::Earth(), $lt);
+
+echo $lt;  // Result: 0.179 days
+```
+
+#### Interpolating Additional Values
+Depending on the DE version number, there may be additional information held within the ephemeris files, such as the Earth's nutations and lunar libration angles. To interpolate these values you can use the `interp()` method and provide the DE element number and number of components which can be found in JPL's documentation.
+
+For example, to find the Earth's nutations in longitude and obliquity according to the 1980 IAU model, you first need to know that the nutations are element 12 and there are 2 components, then call:
+```php
+$nutations = $de->interp(12, 2);
+```
+The results are an array in the units specified by the DE version. For the Earth's nutations, the first element is nutation in longitude (Δψ), and the second is nutation in obliquity (Δε), and in this case both values are expressed radians:
+```
+Array
+(
+    [0] => -6.7464277868885E-5  // Δψ in radians
+    [1] => -2.8042821016313E-5  // Δε in radians
+)
+```
+
+
 
 
 

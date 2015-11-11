@@ -77,7 +77,7 @@ Depending on the DE version, there may be additional information held within the
 
  Description                      | Element  | Components | Units
 ----------------------------------|----------|------------|-------------
- Mercury—Pluto, Sun & Moon        | 1-11     | 6          | au, au/day
+ Mercury—Pluto, Sun & Moon        | 1–11     | 6          | au, au/day
  Earth Nutations (IAU 1980 model) | 12       | 2          | radians
  Lunar mantle libration           | 13       | 3          | radians
  Lunar mantle angular velocity    | 14       | 3          | radians/day

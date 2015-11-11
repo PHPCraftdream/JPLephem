@@ -20,6 +20,7 @@ $de = new Reader();
 
 Then just specify the observation JDE:
 ```php
+// JDE should be in Barycentric Dynamical Time (TDB)
 $de->jde(2451545.5);
 ```
 And you're ready to interpolate positions!  

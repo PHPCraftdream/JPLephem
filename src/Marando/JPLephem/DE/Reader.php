@@ -195,8 +195,15 @@ class Reader {
       $τ  = 0.0057755183 * $Δ0;
 
       // Check if distance equals last distance
-      if ($Δ0 != $Δ)
-        $Δ = $Δ0;  // Doesn't equal push and re-iterate
+      if ($Δ0 != $Δ) {
+        // Doesn't equal push and re-iterate
+        $Δ = $Δ0;
+      }
+      else {
+        // Equal, so break
+        $Δ = $Δ0;
+        break;
+      }
     }
 
     // Store light travel time as Time instance

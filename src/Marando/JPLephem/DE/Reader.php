@@ -20,8 +20,8 @@
 
 namespace Marando\JPLephem\DE;
 
-use \Exception;
 use Marando\JPLephem\Exceptions\NotInstalledException;
+use \Exception;
 use \Marando\Units\Time;
 use \OutOfBoundsException;
 
@@ -588,11 +588,16 @@ MSG;
     protected function getStoragePath()
     {
         // DE is now stored under vendor directory via composer.
-        $base = getcwd();
-        $full = "{$base}/vendor/marando/de{$this->de->version}";
+        $base1 = __DIR__ . '/../../../../../../..';
+        $full1 = "{$base1}/vendor/marando/de{$this->de->version}";
 
-        if (file_exists($full)) {
-            return realpath($full);
+        $base2 = getcwd();
+        $full2 = "{$base2}/vendor/marando/de{$this->de->version}";
+
+        if (file_exists($full1)) {
+            return realpath($full1);
+        } elseif (file_exists($full2)) {
+            return realpath($full2);
         } else {
             $eol = PHP_EOL;
             throw new NotInstalledException("{$this->de} is not installed."

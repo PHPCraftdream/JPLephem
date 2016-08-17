@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2015 ashley
+ * Copyright (C) 2015 Ashley Marando
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -598,35 +598,41 @@ namespace Marando\JPLephem\DE;
  *
  * @author Ashley Marando <a.marando@.me.com>
  */
-class Constant {
-  //----------------------------------------------------------------------------
-  // Properties
-  //----------------------------------------------------------------------------
+class Constant
+{
+    //----------------------------------------------------------------------------
+    // Properties
+    //----------------------------------------------------------------------------
 
-  /**
-   * Holds the public properties of this instance
-   * @var array
-   */
-  protected $properties = [];
+    /**
+     * Holds the public properties of this instance
+     *
+     * @var array
+     */
+    protected $properties = [];
 
-  public function __get($name) {
-    return $this->properties[$name];
-  }
+    public function __get($name)
+    {
+        return $this->properties[$name];
+    }
 
-  public function __set($name, $value) {
-    $this->properties[$name] = $value;
-  }
+    public function __set($name, $value)
+    {
+        $this->properties[$name] = $value;
+    }
 
-  //----------------------------------------------------------------------------
-  // Functions
-  //----------------------------------------------------------------------------
+    //----------------------------------------------------------------------------
+    // Functions
+    //----------------------------------------------------------------------------
 
-  /**
-   * Gets the total number of constants stored within this instance
-   * @return int
-   */
-  public function count() {
-    return count($this->properties);
-  }
+    /**
+     * Gets the total number of constants stored within this instance
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->properties);
+    }
 
 }

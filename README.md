@@ -100,14 +100,20 @@ Array
 
 
 #### Specifying the DE Version
-Because of its small size, `DE421` is the default DE version used within this package. The first time you run the package within any installation the neccesary files will be automatically downloaded. For larger DE versions this may take quite some time.
+Because of its small size, `DE421` is the default version, and exists as a composer dependency that will be automatically downloaded when this package is installed. If you wish to use a different DE version you'll have to require that version in your project's `composer.json` file, or use the `composer require` command to install it. 
 
-If you wish you can specify an alternate DE version like this:
-```php
-$DE431 = new Reader(DE::DE431());
+For example:
+
+```shell
+composer require marando/de430
 ```
 
+The above command will install DE430 to your project, which you can then use like so:
+```php
+$DE430 = new Reader(DE::DE430());
+```
 
+>**Note:** Currently only DE421 and DE430 are available, but more are likely to come in the future.
 
 
 

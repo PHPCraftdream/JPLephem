@@ -49,9 +49,8 @@ class Reader
      * Creates a new JPL DE ephemeris reader
      *
      * @param DE    $de  JPL DE version to load
-     * @param float $jde Optional initial JDE in TDB
      */
-    public function __construct(DE $de = null, $jde = 2451545.5)
+    public function __construct(DE $de = null)
     {
         // Set DE version if provided otherwise load default
         $this->de = $de ? $de : DE::parse(static::DE_DEFAULT);
@@ -61,9 +60,6 @@ class Reader
 
         // Parse DE header file
         $this->header = new Header($this->selectHeaderFile());
-
-        // Set initial JDE of instance
-        $this->jde($jde);
     }
 
     //----------------------------------------------------------------------------
@@ -175,10 +171,11 @@ class Reader
      *
      * @param  SSObj $target Target body
      * @param  SSObj $center Center body
+     * @param  int $components Positions components
      *
      * @return array         Position/velocity vector in AU and AU/day
      */
-    public function position(SSObj $target, SSObj $center = null)
+    public function position(SSObj $target, SSObj $center = null, $components = 3)
     {
         // True position
 
@@ -186,14 +183,13 @@ class Reader
             $center = $this->interpObject($center);
             $target = $this->interpObject($target);
 
-            return [
-              $target[0] - $center[0],
-              $target[1] - $center[1],
-              $target[2] - $center[2],
-              $target[3] - $center[3],
-              $target[4] - $center[4],
-              $target[5] - $center[5],
-            ];
+            $res = [0, 0, 0];
+
+            for ($i = 0; $i < $components; $i++) {
+                $res[$i] = $target[$i] - $center[$i];
+            }
+
+            return $res;
         } else {
             return $this->interpObject($target);
         }
@@ -255,7 +251,7 @@ class Reader
      * @return array                 The result of the interpolation.
      * @throws ElemNotFoundException Occurs if the element is not found.
      */
-    public function interp($elem, $components)
+    public function interp($elem, $components = 3)
     {
         $this->checkLoadedJDE();
 
@@ -301,8 +297,12 @@ class Reader
         $i     = $pointer;
         for ($j = 1; $j <= min([$components, 3]); $j++) {
             for ($k = 1; $k <= $nCoeff; $k++) {
-                $coeff[$j][$k] = $this->chunk[$i];
-                $i++;
+                if (!empty($this->chunk[$i])) {
+                    $coeff[$j][$k] = $this->chunk[$i];
+                    $i++;
+                } else {
+                    throw new Exception('why?');
+                }
             }
         }
 
@@ -393,10 +393,11 @@ class Reader
      * Interpolates the solar system barycentric position of an object
      *
      * @param  SSObj $obj Object to interpolate
+	 * @param  int $components Positions components
      *
      * @return array      Position/Velocity vector
      */
-    protected function interpObject(SSObj $obj)
+    protected function interpObject(SSObj $obj, $components = 3)
     {
         // Solar System barycenter is always a zero vector
         if ($obj == SSObj::SolarBary()) {
@@ -409,8 +410,8 @@ class Reader
             $emrat = $this->header->const->EMRAT;
 
             // Get Earth-Moon barycenter and geocentric moon positions
-            $emb  = $this->interp(SSObj::EarthBary()->id, 6);
-            $moon = $this->interp(SSObj::Moon()->id, 6);
+            $emb  = $this->interp(SSObj::EarthBary()->id, $components);
+            $moon = $this->interp(SSObj::Moon()->id, $components);
 
             // PV of Earth with respect to Solar System barycenter
             return [
@@ -425,8 +426,8 @@ class Reader
 
         // Calculate Moon position
         if ($obj == SSObj::Moon()) {
-            $moon  = $this->interp(SSObj::Moon()->id, 6);
-            $earth = $this->interpObject(SSObj::Earth());
+            $moon  = $this->interp(SSObj::Moon()->id, $components);
+            $earth = $this->interpObject(SSObj::Earth(), $components);
 
             return [
               $moon[0] + $earth[0],
@@ -439,7 +440,7 @@ class Reader
         }
 
         // Interpolate position
-        return $this->interp($obj->id, 6);
+        return $this->interp($obj->id, $components);
     }
 
     // // // Protected
@@ -482,7 +483,7 @@ class Reader
 
         preg_match('/ascp([0-9]{0,6})/', $this->file->getBasename(), $matches);
         $ldYearA = (int)$matches[1];
-        $ldYearB = $ldYearA + $this->yearIntvl;
+        $ldYearB = $ldYearA + $this->yearIntvl - 1;
 
         $year = static::jdToYear($this->jde);
         if ($year < $ldYearA || $year > $ldYearB || $this->chunk == null) {
@@ -531,6 +532,8 @@ MSG;
         return new FileReader($path);
     }
 
+    protected $files = [];
+
     /**
      * Selects the appropriate data file based on the current JDE.
      */
@@ -538,6 +541,11 @@ MSG;
     {
         // Get year represented by this instance's JDE
         $year = static::jdToYear($this->jde);
+
+        if (!empty($this->files[$year])) {
+            $this->file = $this->files[$year];
+            return;
+        }
 
         // Scan the DE directory for ascp coefficient files
         $files = array_values(preg_grep("/ascp[0-9]./", scandir($this->path)));
@@ -563,8 +571,10 @@ MSG;
         }
 
         // Select the appropriate file
-        $file       = $files[$i - 1];
-        $this->file = new FileReader("{$this->path}/{$file}");
+        $file = $files[$i - 1];
+        $file = new FileReader("{$this->path}/{$file}");
+        $this->files[$year] = $file;
+        $this->file = $file;
     }
 
     /**
@@ -588,23 +598,36 @@ MSG;
     protected function getStoragePath()
     {
         // DE is now stored under vendor directory via composer.
+        $base0 = __DIR__ . '/../../../..';
+        $full0 = "{$base0}/vendor/marando/de{$this->de->version}";
+
+        // DE is now stored under vendor directory via composer.
         $base1 = __DIR__ . '/../../../../../../..';
         $full1 = "{$base1}/vendor/marando/de{$this->de->version}";
 
         $base2 = getcwd();
         $full2 = "{$base2}/vendor/marando/de{$this->de->version}";
 
+        if (file_exists($full0)) {
+            return realpath($full0);
+        }
+
         if (file_exists($full1)) {
             return realpath($full1);
-        } elseif (file_exists($full2)) {
-            return realpath($full2);
-        } else {
-            $eol = PHP_EOL;
-            throw new NotInstalledException("{$this->de} is not installed."
-              . PHP_EOL . "Make sure it is installed using composer.");
         }
+
+        if (file_exists($full2)) {
+            return realpath($full2);
+        }
+
+        $eol = PHP_EOL;
+        throw new NotInstalledException(
+            "{$this->de} is not installed." . $eol .
+            "Make sure it is installed using composer."
+        );
     }
 
+    protected $chunks = [];
     /**
      * Loads the appropriate chunk for the currently set JDE.
      */
@@ -617,6 +640,11 @@ MSG;
         // Seek first line and evaluate start JDE of file
         $this->file->seek(1);
         $jde0 = static::evalNumber($this->file->splitCurrent(' ')[0]);
+
+        if (!empty($this->chunks[$jde0])) {
+            $this->chunk = $this->chunks[$jde0];
+            return;
+        }
 
         // Calculate the chunk number and starting line
         $chunkNum   = floor(($this->jde - $jde0) / $blockSize);
@@ -637,11 +665,15 @@ MSG;
         // Explode chunk to array and parse coefficients
         $chunk = explode("\n", $chunk);
         for ($i = $chunkNum == 0 ? 1 : 0; $i <= floor($nCoeff / 3); $i++) {
+            if (empty($chunk[$i])) {
+                throw new Exception('why?');
+            }
             foreach (static::filtExplode($chunk[$i]) as $coeff) {
                 $coeffs[] = static::evalNumber(trim($coeff));
             }
         }
 
+        $this->chunks[$jde0] = $coeffs;
         // Set the coefficients
         $this->chunk = $coeffs;
     }

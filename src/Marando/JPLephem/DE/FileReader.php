@@ -37,29 +37,39 @@ class FileReader extends SplFileObject
      *
      * @return array
      */
-    public function splitLine($line, $delim = ' ', $trim = " \t\n\r\0\x0B")
+    public function splitLine($line, $delim = ' ')
     {
         $this->seek($line);
 
-        return $this->splitCurrent($delim, $trim);
+        return $this->splitCurrent($delim);
     }
+
+    protected $splits = [];
 
     /**
      * Splits the current line while trimming empty data
      *
      * @param string $delim Delimiter to split at
-     * @param string $trim  Characters to trim
      *
      * @return array
      */
-    public function splitCurrent($delim = ' ', $trim = " \t\n\r\0\x0B")
-    {
-        $line     = $this->current();
-        $trimmed  = trim($line, $trim);
-        $columns  = explode($delim, $trimmed);
+    public function splitCurrent($delim = ' ') {
+        $current = $this->current();
+        if (empty($this->splits[$current])) {
+            $this->splits[$current] = [];
+        }
+
+        if (!empty($this->splits[$current][$delim])) {
+            return $this->splits[$current][$delim];
+        }
+        $line = $this->current();
+        $trimmed = trim($line, " \t\n\r\0\x0B");
+        $columns = explode($delim, $trimmed);
         $filtered = array_filter($columns);
 
-        return array_values($filtered);
-    }
+        $values = array_values($filtered);
+        $this->splits[$current][$delim] = $values;
 
+        return $values;
+    }
 }

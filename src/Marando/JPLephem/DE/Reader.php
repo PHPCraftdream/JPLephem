@@ -179,10 +179,9 @@ class Reader
     public function position(SSObj $target, SSObj $center = null, $components = 3)
     {
         // True position
-
         if ($target && $center) {
-            $center = $this->interpObject($center);
-            $target = $this->interpObject($target);
+            $center = $this->interpObject($center, $components);
+            $target = $this->interpObject($target, $components);
 
             $res = [0, 0, 0];
 

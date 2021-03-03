@@ -14,7 +14,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
     public function testNonIncludedDE()
     {
         $this->setExpectedExceptionRegExp(NotInstalledException::class);
-        $de = new Reader(DE::DE430());
+        $de = new Reader(DE::DE403());
     }
 
     public function testLTT()
@@ -190,7 +190,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
             $center = $center == 3 ? SSObj::Earth() : new SSObj($center);
 
             // Interpolate position/velocity & grab test coordinate element
-            $posvel = $reader->jde($jde)->position($target, $center);
+            $posvel = $reader->jde($jde)->position($target, $center, 6);
             $valAct = $posvel[$elem - 1];
 
             /*
